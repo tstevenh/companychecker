@@ -1,0 +1,87 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '../../components/Faq.astro';
+import Fact from '../../components/Fact.astro';
+import NameIdeasForm from '../../components/NameIdeasForm.astro';
+import RelatedPages from '../../components/RelatedPages.astro';
+import { faqSchema, toolSchema } from '../../lib/schema';
+
+const title = 'Business name generator: UK company name ideas';
+const description =
+  'Get UK company name ideas from a few keywords, each checked against every live company on the Companies House register.';
+
+const faq = [
+  {
+    q: 'Are the names really available?',
+    a: 'Each idea is checked against every live UK company using the Companies House "same as" rules, so an idea marked available has no exact clash. Companies House can still object to a name that is "too like" another or that uses a sensitive word, so run a <a href="/check/">full name check</a> on your favourite before you register it.',
+  },
+  {
+    q: 'Why do all the ideas end in "Ltd"?',
+    a: 'A private limited company name normally has to end in "Limited" or "Ltd". The ending is ignored when names are compared, so "Bakery Studio Ltd" and "Bakery Studio Limited" count as the same name.',
+  },
+  {
+    q: 'Why don\'t the ideas use words like "Group", "Holdings" or "British"?',
+    a: 'Words like these usually need permission from Companies House or another body before you can use them. The generator leaves them out so every idea can be registered straight away. See <a href="/company-name-rules/">company name rules</a> for more on sensitive words.',
+  },
+  {
+    q: 'How do I secure a name I like?',
+    a: 'A company name is secured when your company is registered with it, and someone else could register it before you. If you need time to get ready, you can register the matching domain names straight away, and consider a <a href="/trade-mark-search/">trade mark</a> if the name is your brand.',
+  },
+  {
+    q: 'How long can a company name be?',
+    a: 'Up to 160 characters including spaces, but only the first 60 count when Companies House compares names. Short names are easier to remember and to fit in a domain.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  breadcrumbs={[{ name: 'Business name generator', href: '/business-name-generator/' }]}
+  schema={[toolSchema({ name: 'Business name generator', description, href: '/business-name-generator/' }), faqSchema(faq)]}
+>
+  <h1>Business name generator</h1>
+  <p class="lede">
+    Enter a few words about what your business does. We'll suggest company names and check every one against all live UK
+    companies, so you only shortlist names you can actually register.
+  </p>
+
+  <NameIdeasForm />
+
+  <h2>How it works</h2>
+  <ol>
+    <li><strong>Your words become ideas.</strong> We combine them with descriptive words and with each other, then add "Ltd".</li>
+    <li><strong>Every idea is checked.</strong> We reduce each one the way Companies House does, removing endings, punctuation, "The" and a final "S", and look it up among every live company.</li>
+    <li><strong>Available ideas come first.</strong> Taken ones are listed underneath with the company they clash with, so you can see what's already out there.</li>
+  </ol>
+
+  <h2>What makes a good company name</h2>
+  <ul>
+    <li><strong>Distinctive, not descriptive.</strong> "Bakery Services Ltd" is hard to register and hard to remember. Adding a distinctive word ("Copper Bakery") makes it both available and memorable.</li>
+    <li><strong>Easy to say and spell.</strong> If you have to spell it out on the phone, customers will mistype it in search and email.</li>
+    <li><strong>Room to grow.</strong> A name tied to one product or town can feel narrow if the business expands.</li>
+    <li><strong>Matching domain.</strong> Check the .co.uk and .com before you fall in love with a name. Our <a href="/domain-name-checker/">domain name checker</a> does all three main ones at once.</li>
+    <li><strong>No trade mark conflict.</strong> Registering a company name doesn't give you the right to trade under it if someone else owns the trade mark. Search the register first: see <a href="/trade-mark-search/">UK trade mark search</a>.</li>
+  </ul>
+
+  <h2>Names Companies House will refuse</h2>
+  <p>
+    The main reason is a name that's the "same as" an existing one, after endings, punctuation and a few equivalent words
+    are ignored. Names can also be refused if they're offensive, suggest a connection with government without permission,
+    or use a sensitive word without approval. The limit is <Fact id="name-max-length" />. The
+    <a href="/company-name-rules/">company name rules guide</a> explains each rule with examples.
+  </p>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/', '/domain-name-checker/', '/trade-mark-search/', '/register-a-limited-company/']} />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>

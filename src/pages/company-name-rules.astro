@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import { articleSchema } from '../lib/schema';
 import Fact from '../components/Fact.astro';
 import GuideSources from '../components/GuideSources.astro';
 import NameCheckForm from '../components/NameCheckForm.astro';
@@ -19,8 +21,11 @@ const examples = [
 ---
 
 <Base
-  title="UK company name rules: the Companies House 'same as' test explained"
+  title="UK company name rules: the 'same as' test explained"
   description="How Companies House decides whether two company names are the 'same as' each other, with the rules from the 2015 Names Regulations and worked examples."
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Company name rules', href: '/company-name-rules/' }]}
+  schema={[articleSchema({ title: "UK company name rules: the 'same as' test explained", description: "How Companies House decides whether two company names are the 'same as' each other, with the rules from the 2015 Names Regulations and worked examples.", href: '/company-name-rules/', updated: '2026-10-31' })]}
 >
   <h1>UK company name rules: the "same as" test</h1>
   <p>
@@ -99,6 +104,8 @@ const examples = [
 
   <h2>Check your name</h2>
   <NameCheckForm />
+
+  <RelatedPages hrefs={['/', '/business-name-generator/', '/change-company-name/', '/trade-mark-search/']} />
 
   <GuideSources
     factIds={['name-same-as-compared-length', 'name-max-length']}

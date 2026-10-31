@@ -1,0 +1,133 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import NameCheckForm from '../components/NameCheckForm.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+
+const title = 'How to change a company name: methods and fees';
+const description =
+  "Change a UK limited company's name by special resolution or your articles: forms NM01 and NM04, fees, when the new name takes effect and what to update.";
+
+const faq = [
+  {
+    q: 'How long does a change of name take?',
+    a: 'The change takes effect on the date Companies House issues the new certificate. A same-day service is available for an extra fee.',
+  },
+  {
+    q: 'Does changing the name change the company number?',
+    a: "No. It's the same company with the same number. Its rights and obligations, such as contracts, debts and bank accounts, carry on unaffected.",
+  },
+  {
+    q: 'Can I change to any name I like?',
+    a: 'The new name must follow all the usual rules: it can\'t be the "same as" an existing name, and sensitive words need permission. <a href="/">Check the new name</a> first.',
+  },
+  {
+    q: 'Do I need to tell HMRC?',
+    a: 'You may need to. Companies House shares some changes, but check what HMRC needs, for example for VAT and PAYE records.',
+  },
+  {
+    q: 'What is a special resolution?',
+    a: 'A decision of the shareholders that needs at least 75% of the votes. Many small companies pass it as a written resolution signed by the shareholders.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Change company name', href: '/change-company-name/' }]}
+  schema={[articleSchema({ title, description, href: '/change-company-name/', updated: '2026-10-31' }), faqSchema(faq)]}
+>
+  <h1>How to change a company name</h1>
+  <p class="lede">
+    Changing your company's name is a filing with Companies House. The company, its number and its contracts stay the
+    same; only the name changes. Here are the two ways to do it, what it costs, and what to update afterwards.
+  </p>
+
+  <h2>1. Check the new name is available</h2>
+  <p>
+    The new name has to follow all the rules for company names<Src id="name-rules-apply" />: it can't be the same as an
+    existing registered name<Src id="name-same-as-rule" /> and normally still ends in "Limited" or "Ltd".<Src id="name-ending-rule" />
+  </p>
+  <NameCheckForm />
+
+  <h2>2. Agree the change</h2>
+  <p>A company can change its name by special resolution, or by any other method its articles of association provide for.<Src id="name-methods" /></p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Method</th><th scope="col">Who decides</th><th scope="col">Form</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Special resolution</td>
+          <td>Shareholders, with at least 75% of the votes<Src id="name-special-resolution-majority" /></td>
+          <td>Online, or paper form NM01 with a copy of the resolution<Src id="name-form-nm01" /></td>
+        </tr>
+        <tr>
+          <td>Method in the articles</td>
+          <td>Whatever the articles say, for example a directors' decision</td>
+          <td>Paper form NM04<Src id="name-form-nm04" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The online service only handles changes by special resolution.<Src id="name-online-scope" /> The resolution must reach Companies House within <Fact id="name-resolution-15-days" /> of being passed.</p>
+
+  <h2>3. File and pay</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Service</th><th scope="col">Fee</th></tr></thead>
+      <tbody>
+        <tr><td>Online</td><td><Fact id="ch-fee-change-of-name-online" /></td></tr>
+        <tr><td>Paper form</td><td><Fact id="ch-fee-change-of-name-paper" /></td></tr>
+        <tr><td>Same-day service</td><td><Fact id="name-fee-same-day" /></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">One older GOV.UK guide still shows £83 for the same-day service; the Companies House fees page and the NM01 form page both say £85.</p>
+
+  <h2>4. When the new name takes effect</h2>
+  <p>
+    The new name applies from the date Companies House issues the new certificate of incorporation<Src id="name-effective-date" />,
+    which shows the new name and the date it was registered.<Src id="name-certificate" /> The change doesn't affect any of
+    the company's rights or obligations, or legal proceedings by or against it.<Src id="name-rights-unaffected" />
+  </p>
+
+  <h2>5. Update everything else</h2>
+  <ul class="checklist">
+    <li>Signs at your registered office and places of business, plus letters, invoices, website and other publicity: the company name must appear on all of them.<Src id="name-update-signs" /></li>
+    <li>HMRC records, such as Corporation Tax, VAT and PAYE: you may need to tell HMRC about company changes.<Src id="name-tell-hmrc" /></li>
+    <li>Your bank and payment providers</li>
+    <li>Contracts, insurance and licences</li>
+    <li>Domain names, email addresses and social media profiles</li>
+  </ul>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/', '/company-name-rules/', '/business-name-generator/', '/trade-mark-search/']} />
+
+  <GuideSources
+    factIds={[
+      'name-rules-apply', 'name-same-as-rule', 'name-ending-rule', 'name-methods', 'name-special-resolution-majority',
+      'name-form-nm01', 'name-form-nm04', 'name-online-scope', 'name-resolution-15-days', 'ch-fee-change-of-name-online',
+      'ch-fee-change-of-name-paper', 'name-fee-same-day', 'name-effective-date', 'name-certificate',
+      'name-rights-unaffected', 'name-update-signs', 'name-tell-hmrc',
+    ]}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+  .checklist {
+    list-style: '☐  ';
+  }
+</style>

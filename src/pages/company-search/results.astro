@@ -1,0 +1,79 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompanySearchForm from '../../components/CompanySearchForm.astro';
+import { runCompanySearch } from '../../lib/server/runtime.ts';
+import { formatDate } from '../../lib/facts';
+
+export const prerender = false;
+
+const q = Astro.url.searchParams.get('q') ?? '';
+if (!q.trim()) return Astro.redirect('/company-search/', 302);
+const result = await runCompanySearch(q);
+if (result.kind === 'number') return Astro.redirect(`/company/?number=${encodeURIComponent(result.number)}`, 302);
+---
+
+<Base
+  title={`Company search: ${q} | Company Name Checker`}
+  description="Search results for UK companies by name."
+  noindex
+  breadcrumbs={[{ name: 'Company search', href: '/company-search/' }, { name: 'Results', href: Astro.url.pathname }]}
+>
+  <h1>Companies matching "{q}"</h1>
+  <CompanySearchForm value={q} />
+
+  {
+    result.kind === 'error' && result.error === 'unavailable' && (
+      <p>
+        Our company data is temporarily unavailable. Try the official{' '}
+        <a href={`https://find-and-update.company-information.service.gov.uk/search/companies?q=${encodeURIComponent(q)}`} rel="nofollow noopener">
+          Companies House search
+        </a>
+        .
+      </p>
+    )
+  }
+  {result.kind === 'error' && result.error === 'empty' && <p>Enter a company name or number.</p>}
+
+  {
+    result.kind === 'names' && (
+      <>
+        {result.results.length === 0 ? (
+          <p>
+            No live company names start with that. Companies are matched on their name after "The", "Ltd" and punctuation
+            are removed. Try fewer words, or <a href={`/check/?name=${encodeURIComponent(q)}`}>check whether the name is available</a>.
+          </p>
+        ) : (
+          <ol class="results">
+            {result.results.map((c) => (
+              <li>
+                <a href={`/company/?number=${encodeURIComponent(c.number)}`}>{c.name}</a>
+                <span class="muted">
+                  {c.number} · {c.status || 'status unknown'}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+        {result.results.length === 25 && <p class="muted">Showing the first 25 matches. Add more words to narrow the search.</p>}
+        {result.indexSnapshot && (
+          <p class="muted small">
+            Live companies from Companies House data of {formatDate(new Date(result.indexSnapshot))}. Companies registered
+            since then may not appear yet.
+          </p>
+        )}
+      </>
+    )
+  }
+</Base>
+
+<style>
+  .results {
+    padding-left: 1.4rem;
+  }
+  .results li {
+    margin: 0.5rem 0;
+  }
+  .results li span {
+    display: block;
+  }
+</style>

@@ -1,106 +1,206 @@
 ---
 import Base from '../layouts/Base.astro';
 import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
 import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+
+const title = 'Companies House identity verification: deadlines and ID';
+const description =
+  'Who must verify their identity with Companies House, your deadline as a director or PSC, accepted ID, One Login, the Post Office route, ACSPs and penalties.';
+
+const faq = [
+  {
+    q: 'Do I have to verify again for each company?',
+    a: "No. You verify once and get one personal code, which you use for every company you're involved with. You do still need to provide it for each company, for example in each company's confirmation statement.",
+  },
+  {
+    q: 'I live outside the UK. How do I verify?',
+    a: 'You can use GOV.UK One Login with a biometric passport from any country, or verify through an Authorised Corporate Service Provider (ACSP). ACSPs can verify you from any country, though they may charge.',
+  },
+  {
+    q: 'Is there a deadline of 18 November 2026?',
+    a: "Not a single one. 18 November 2025 started a 12-month transition, but each existing director's deadline is their company's next confirmation statement, and each PSC has their own 14-day window. Check your own dates.",
+  },
+  {
+    q: 'What happens if a director hasn\'t verified?',
+    a: "The company can't file its confirmation statement, and the director may be committing an offence by continuing to act. Penalties can include prosecution and a fine, or a financial penalty.",
+  },
+  {
+    q: 'Can I verify without photo ID?',
+    a: 'If you live in the UK, GOV.UK One Login can offer a route using your bank or building society details, your National Insurance number and security questions.',
+  },
+  {
+    q: 'Where do I find my personal code?',
+    a: 'Sign in to Companies House and open "Manage account". If you verified after 8 July 2026, the code was also emailed to you.',
+  },
+  {
+    q: 'Do people who file for a company need to verify?',
+    a: 'Not yet. Companies House plans to extend verification to people who file, no earlier than November 2027, with at least six months\' notice.',
+  },
+];
 ---
 
 <Base
-  title="Companies House identity verification: who, when and how"
-  description="Companies House identity verification explained: who has to verify, the deadlines for directors and PSCs, verifying free with GOV.UK One Login or through an ACSP, and your personal code."
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Identity verification', href: '/companies-house-identity-verification/' }]}
+  schema={[articleSchema({ title, description, href: '/companies-house-identity-verification/', updated: '2026-10-31' }), faqSchema(faq)]}
 >
   <h1>Companies House identity verification</h1>
-  <p>
+  <p class="lede">
     Since <Fact id="idv-mandatory-start" />, company directors and people with significant control (PSCs) have had to
-    verify their identity with Companies House. Most people only do it once.
+    verify their identity with Companies House. It's free with GOV.UK One Login, you only do it once, and your
+    company can't file its confirmation statement until every director has done it.
   </p>
 
-  <h2>Who has to verify</h2>
+  <nav class="toc" aria-label="On this page">
+    <strong>On this page</strong>
+    <ol>
+      <li><a href="#who">Who has to verify</a></li>
+      <li><a href="#when">Your deadline</a></li>
+      <li><a href="#id">What ID you need</a></li>
+      <li><a href="#how">How to verify</a></li>
+      <li><a href="#abroad">Verifying from outside the UK</a></li>
+      <li><a href="#code">Your personal code</a></li>
+      <li><a href="#penalties">If you don't verify</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="who">Who has to verify</h2>
   <ul>
     <li>Company directors, and equivalents such as LLP members</li>
     <li>People with significant control (PSCs)</li>
     <li>Directors of overseas companies registered in the UK</li>
   </ul>
+  <p class="muted small">From Companies House's identity verification guidance.<Src id="idv-mandatory-start" /></p>
+  <p>Verification for people who file on a company's behalf is planned for no earlier than November 2027.<Src id="iv-filers-future" /></p>
 
-  <h2>When you have to do it</h2>
+  <h2 id="when">Your deadline</h2>
+  <p>
+    18 November 2025 started a 12-month transition period for people already in post; it isn't a deadline in itself.<Src id="iv-transition-period" />
+    Your own deadline depends on your role:
+  </p>
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th scope="col">Who</th>
-          <th scope="col">Deadline</th>
-        </tr>
-      </thead>
+      <thead><tr><th scope="col">Who</th><th scope="col">When to give your personal code</th></tr></thead>
       <tbody>
-        <tr>
-          <td>Existing directors</td>
-          <td><Fact id="idv-existing-directors-deadline" /></td>
-        </tr>
-        <tr>
-          <td>New directors</td>
-          <td><Fact id="idv-new-directors-deadline" /></td>
-        </tr>
-        <tr>
-          <td>People with significant control</td>
-          <td><Fact id="idv-psc-deadline" /></td>
-        </tr>
+        <tr><td>Existing directors</td><td><Fact id="idv-existing-directors-deadline" />, for each company</td></tr>
+        <tr><td>New directors</td><td><Fact id="idv-new-directors-deadline" /></td></tr>
+        <tr><td>Existing PSCs who are also directors</td><td>Within 14 days starting the day after the company's confirmation statement date<Src id="iv-psc-also-director" /></td></tr>
+        <tr><td>Existing PSCs who aren't directors</td><td>Within the first 14 days of your birth month<Src id="iv-psc-not-director" /></td></tr>
       </tbody>
     </table>
   </div>
+  <p>
+    Every PSC has a <Fact id="iv-psc-window" /> window, and can ask for an extension of <Fact id="iv-psc-extension" /> if
+    they request it before the deadline. Use our <a href="/company-search/">company search</a> to see when your company's
+    next confirmation statement is due.
+  </p>
 
-  <h2>Two ways to verify</h2>
+  <h2 id="id">What ID you need</h2>
+  <p>To verify online with GOV.UK One Login, you need one of these:<Src id="iv-accepted-photo-id" /></p>
+  <ul>
+    <li>a biometric passport, from any country</li>
+    <li>a UK photo driving licence, full or provisional</li>
+    <li>a UK biometric residence permit or card</li>
+    <li>a UK Frontier Worker permit</li>
+  </ul>
+  <p>
+    You'll also need your current address and the year you moved in.<Src id="iv-also-need-address" /> A DVLA driving
+    licence that expired in the last <Fact id="iv-expired-driving-licence" /> is still accepted. People living in the UK
+    without accepted photo ID may be offered a route using bank or building society details, a National Insurance number
+    and security questions.<Src id="iv-no-photo-id-route" />
+  </p>
+
+  <h2 id="how">How to verify</h2>
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th scope="col">Route</th>
-          <th scope="col">Cost</th>
-          <th scope="col">Good for</th>
-        </tr>
-      </thead>
+      <thead><tr><th scope="col">Route</th><th scope="col">Cost</th><th scope="col">How it works</th></tr></thead>
       <tbody>
         <tr>
           <td>GOV.UK One Login</td>
           <td><Fact id="idv-route-one-login-cost" /></td>
-          <td>Most people. Verify with the app, online, or by entering photo ID details and finishing at a participating Post Office.</td>
+          <td>Answer some questions and One Login picks the best way for you: the app, online security questions, or entering photo ID details online and finishing at a Post Office.<Src id="iv-one-login-routes" /></td>
         </tr>
         <tr>
           <td>An Authorised Corporate Service Provider (ACSP)</td>
-          <td><Fact id="idv-route-acsp" /></td>
-          <td>People who can't use One Login or would rather use an agent. ACSPs can be based in any country.</td>
+          <td>May charge a fee</td>
+          <td>An agent, such as an accountant or solicitor registered with Companies House, checks your ID. Your code usually arrives by email <Fact id="iv-acsp-code-email" />.</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p>Don't post or email identity documents to Companies House.</p>
 
-  <h2>Your personal code</h2>
+  <h3>The Post Office route</h3>
+  <ol>
+    <li>Start online with GOV.UK One Login and choose the Post Office option.</li>
+    <li>Visit a participating Post Office within about <Fact id="iv-post-office-visit-window" /> (the date is on your customer letter).<Src id="iv-post-office-visit-window" /></li>
+    <li>Take your original photo ID: photocopies and digital images aren't accepted.<Src id="iv-post-office-original-id" /></li>
+    <li>Get your result by email, usually within <Fact id="iv-post-office-result-time" />.</li>
+  </ol>
+  <p>You must finish within <Fact id="iv-post-office-deadline" /> of booking the appointment. Don't post or email identity documents to Companies House.</p>
+
+  <h2 id="abroad">Verifying from outside the UK</h2>
   <p>
-    After you verify, you get a Companies House personal code. It belongs to you, not to a company. You give it when you
-    file a confirmation statement, when you become a director, and when you become a PSC. Keep it as secure as your tax
-    reference.
+    Directors and PSCs abroad have two options. One Login accepts a biometric passport from any country.<Src id="iv-accepted-photo-id" />
+    Or use an ACSP: the verification can be done from any country, but the agent must be registered with Companies House.<Src id="iv-acsp-route" />
+    Companies House publishes a list of ACSPs who chose to be listed. It isn't complete, and Companies House doesn't
+    endorse the agents on it.<Src id="iv-acsp-official-list" />
   </p>
 
-  <h2>Starting a new company?</h2>
+  <h2 id="code">Your personal code</h2>
   <p>
-    New directors give their personal code when the company is registered, so verify first. See
-    <a href="/register-a-limited-company/">how to register a limited company</a>.
+    Once verified, you get a Companies House personal code: an <Fact id="iv-personal-code-length" /> code that belongs to
+    you, not to a company.<Src id="iv-personal-code-length" /> You use the same code every time you need to show you're
+    verified<Src id="iv-personal-code-reuse" />, for example on a confirmation statement or when appointed as a director.
+    To find it, sign in to Companies House and go to "Manage account".<Src id="iv-personal-code-where" /> Keep it as secure
+    as your tax reference.
   </p>
+
+  <h2 id="penalties">If you don't verify</h2>
+  <ul>
+    <li><strong>The company can't file its confirmation statement</strong> until all its directors are verified.<Src id="iv-blocks-confirmation-statement" /></li>
+    <li><strong>It may be an offence.</strong> You could face prosecution and a fine, or a financial penalty.<Src id="iv-offence-penalty" /></li>
+    <li><strong>Directors who keep acting</strong> after their deadline without verifying commit an offence, and the company may too.<Src id="iv-director-continuing-offence" /></li>
+    <li><strong>Repeat cases</strong>: Companies House is likely to treat it as serious if a person or company commits 3 or more offences in 5 years.<Src id="iv-serious-noncompliance" /></li>
+  </ul>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/confirmation-statement/', '/register-a-limited-company/', '/company-search/', '/dormant-company/']} />
 
   <GuideSources
     factIds={[
-      'idv-mandatory-start',
-      'idv-voluntary-start',
-      'idv-existing-directors-deadline',
-      'idv-new-directors-deadline',
-      'idv-psc-deadline',
-      'idv-route-one-login-cost',
-      'idv-route-acsp',
+      'idv-mandatory-start', 'iv-filers-future', 'iv-transition-period', 'idv-existing-directors-deadline',
+      'idv-new-directors-deadline', 'iv-psc-also-director', 'iv-psc-not-director', 'iv-psc-window', 'iv-psc-extension',
+      'iv-accepted-photo-id', 'iv-also-need-address', 'iv-expired-driving-licence', 'iv-no-photo-id-route',
+      'idv-route-one-login-cost', 'iv-one-login-routes', 'iv-acsp-code-email', 'iv-post-office-visit-window',
+      'iv-post-office-original-id', 'iv-post-office-result-time', 'iv-post-office-deadline', 'iv-acsp-route',
+      'iv-acsp-official-list', 'iv-personal-code-length', 'iv-personal-code-reuse', 'iv-personal-code-where',
+      'iv-blocks-confirmation-statement', 'iv-offence-penalty', 'iv-director-continuing-offence', 'iv-serious-noncompliance',
     ]}
   />
 </Base>
 
 <style>
-  .table-wrap {
-    overflow-x: auto;
+  .lede {
+    font-size: 1.1rem;
+  }
+  .toc {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin: 1.5rem 0;
+  }
+  .toc ol {
+    margin: 0.4rem 0 0;
+    padding-left: 1.2rem;
+  }
+  li {
+    margin: 0.3rem 0;
   }
 </style>

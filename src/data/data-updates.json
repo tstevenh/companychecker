@@ -18,5 +18,25 @@
       "Added director, shareholder, company secretary and registered office rules from GOV.UK.",
       "Added registered email requirement and registration times (online and by post)."
     ]
+  },
+  {
+    "id": "2026-10-31-guides",
+    "date": "2026-10-31",
+    "title": "Facts for new guides",
+    "changes": [
+      "Added identity verification details: accepted ID, Post Office route, personal codes, ACSPs, PSC deadlines and penalties.",
+      "Added confirmation statement, dormant company, change of name and registered office rules.",
+      "Added Companies House search facts and the same-day change of name fee (£85, per the fees page; one older GOV.UK guide still shows £83)."
+    ]
+  },
+  {
+    "id": "2026-10-31-tools",
+    "date": "2026-10-31",
+    "title": "Facts for VAT, trade mark and domain tools",
+    "changes": [
+      "Added UK VAT number formats, check digits and official checking services.",
+      "Added UK trade mark search, fees (from 1 April 2026), timings and renewal.",
+      "Added the registration lookup services used by the domain name checker."
+    ]
   }
 ]

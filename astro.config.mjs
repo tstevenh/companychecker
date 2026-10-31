@@ -12,6 +12,11 @@ export default defineConfig({
   // Keep whitespace between text and inline links that sit on separate lines.
   compressHTML: false,
   adapter: cloudflare(),
-  // /check/ shows search results, which shouldn't be indexed.
-  integrations: [sitemap({ filter: (page) => !page.includes('/check/') })],
+  // Search and result pages are noindex and stay out of the sitemap.
+  integrations: [
+    sitemap({
+      filter: (page) =>
+        !['/check/', '/company/', '/results/', '/ideas/'].some((part) => new URL(page).pathname.includes(part)),
+    }),
+  ],
 });

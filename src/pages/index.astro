@@ -1,45 +1,110 @@
 ---
 import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Fact from '../components/Fact.astro';
 import NameCheckForm from '../components/NameCheckForm.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import { normalizeCompanyName } from '../lib/company-name/normalize';
+import { faqSchema, toolSchema } from '../lib/schema';
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+const incorporationFee = formatFactValue((await getEntry('facts', 'ch-fee-incorporation-online'))!.data);
+
+const title = 'Company Name Checker: is your UK company name available?';
+const description =
+  "Free UK company name checker. See if a limited company name is available under the Companies House 'same as' rules, plus similar names and ways to register.";
+
+const examples = ['Acme UK Ltd', 'The Acme Company Limited', 'A.C.M.E. Ltd'].map((name) => ({ name, key: normalizeCompanyName(name) }));
+
+const faq = [
+  {
+    q: 'Is this the official Companies House name checker?',
+    a: 'No. Company Name Checker is an independent service. It uses Companies House data and applies the published "same as" rules, and it also shows similar names and the ways to register. Companies House has its own <a href="https://find-and-update.company-information.service.gov.uk/company-name-availability" rel="nofollow noopener">name availability checker</a>, and only Companies House can accept a name when you file.',
+  },
+  {
+    q: 'How up to date is the data?',
+    a: 'We load every live UK company from Companies House\'s monthly data file. When that data finds no clash, we also search Companies House live, so names registered in the last few weeks are caught too. The result page says which checks were used.',
+  },
+  {
+    q: 'What does "same as" mean?',
+    a: 'Companies House ignores parts of a name that don\'t make it different: endings like "Ltd" or "Company", punctuation, accents, "The" at the start, a final "S", and equivalents such as "&amp;" and "and". If what\'s left matches an existing company, the name is the "same as" it. See <a href="/company-name-rules/">company name rules</a> for every step.',
+  },
+  {
+    q: 'The name I want is taken. What can I do?',
+    a: 'Add a distinctive word ("Copper Bakery" rather than "Bakery"), change the order, or use a different descriptive word. The <a href="/business-name-generator/">business name generator</a> suggests ideas and checks each one. A same-as name is only allowed in narrow cases, such as a company in the same group as the existing one with its written consent.',
+  },
+  {
+    q: 'If the name is available, can I use it?',
+    a: 'Usually, but check two more things. Companies House can object to a name that is "too like" an existing one, so look at the similar names we list. And a company name doesn\'t override someone else\'s trade mark, so search the <a href="/trade-mark-search/">UK trade marks register</a> too.',
+  },
+  {
+    q: 'How much does it cost to register a company?',
+    a: `Registering directly with Companies House costs ${incorporationFee} online. Some providers register the company for you and include extras such as a business account; see <a href="/register-a-limited-company/">how to register a limited company</a> for the steps and a comparison.`,
+  },
+];
 ---
 
-<Base
-  title="Company Name Checker: is your UK company name available?"
-  description="Free UK company name checker. See if a limited company name is available, why a name clashes under the Companies House 'same as' rules, and the ways to register it."
->
+<Base title={title} description={description} schema={[toolSchema({ name: 'Company name checker', description, href: '/' }), faqSchema(faq)]}>
   <h1>Is your UK company name available?</h1>
   <p class="lede">
-    Check a name against every live UK company. We apply the same rules Companies House uses, so "Acme UK Ltd" and
-    "The Acme Company Limited" count as the same name.
+    Check a name against every live UK company. We apply the same rules Companies House uses, so you find out whether
+    it would be accepted, not just whether the exact spelling is free.
   </p>
 
   <NameCheckForm autofocus />
 
-  <section>
-    <h2>What the checker does</h2>
-    <ul>
-      <li><strong>Finds exact clashes:</strong> names Companies House treats as the "same as" yours, after removing endings like "Ltd", punctuation, "The", a final "S" and more.</li>
-      <li><strong>Shows similar names</strong> that could still be objected to as "too like" an existing company.</li>
-      <li><strong>Compares ways to register</strong> the name once you've found one that's free.</li>
-    </ul>
-    <p class="muted">
-      Final approval of a name happens when Companies House accepts your filing. Independent service, not affiliated with
-      Companies House.
-    </p>
-  </section>
+  <h2>What you get</h2>
+  <ul>
+    <li><strong>A clear answer:</strong> available, or taken, with the companies it clashes with and a link to each on Companies House.</li>
+    <li><strong>The reason:</strong> the reduced form Companies House compares, so you can see why two names count as the same.</li>
+    <li><strong>Similar names</strong> already registered, which could still lead to a "too like" objection.</li>
+    <li><strong>Next steps</strong> when the name is free: the ways to register it, plus trade mark and domain checks.</li>
+  </ul>
 
-  <section>
-    <h2>Guides</h2>
-    <ul>
-      <li><a href="/company-name-rules/">UK company name rules: how the "same as" test works</a></li>
-      <li><a href="/register-a-limited-company/">How to register a limited company</a></li>
-      <li><a href="/companies-house-identity-verification/">Companies House identity verification</a></li>
-    </ul>
-  </section>
+  <h2>Why "available" is more than an exact match</h2>
+  <p>
+    Companies House doesn't just look for the same spelling. It strips out the parts of a name that don't make it
+    different, then compares what's left. These three names all reduce to the same thing, so only one of them can exist:
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th scope="col">Name</th><th scope="col">What Companies House compares</th></tr>
+      </thead>
+      <tbody>
+        {examples.map((e) => (
+          <tr><td>{e.name}</td><td><code>{e.key}</code></td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p>
+    A simple search for "Acme UK Ltd" would miss "The Acme Company Limited". Our checker applies all the rules from the
+    2015 Names Regulations, explained step by step in <a href="/company-name-rules/">company name rules</a>.
+  </p>
+
+  <h2>Before you register a name</h2>
+  <ol>
+    <li><strong>Check it here</strong> and read through the similar names.</li>
+    <li><strong>Check the domains</strong> you'd want with the <a href="/domain-name-checker/">domain name checker</a>.</li>
+    <li><strong>Search trade marks</strong>: see <a href="/trade-mark-search/">UK trade mark search</a>.</li>
+    <li>
+      <strong>Register</strong>: online with Companies House it costs <Fact id="ch-fee-incorporation-online" /> and is
+      <Fact id="formation-time-online" />. See <a href="/register-a-limited-company/">how to register a limited company</a>.
+    </li>
+  </ol>
+
+  <Faq items={faq} />
+
+  <RelatedPages heading="More free tools" hrefs={['/business-name-generator/', '/company-search/', '/domain-name-checker/', '/vat-number-checker/']} />
 </Base>
 
 <style>
   .lede {
     font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
   }
 </style>

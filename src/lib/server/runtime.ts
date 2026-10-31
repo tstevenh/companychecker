@@ -4,6 +4,9 @@
 import { env } from 'cloudflare:workers';
 import type { IndexManifest } from '../company-index/format.ts';
 import { checkName, companiesHouseSearch, loadManifest, type LiveCompany, type NameCheckDeps } from '../name-check.ts';
+import { companiesHouseProfile, companyDetails, searchCompanies, type LiveProfile } from '../company-lookup.ts';
+import { nameIdeas } from '../name-ideas.ts';
+import { checkDomains } from '../domains.ts';
 
 const MANIFEST_TTL_MS = 10 * 60 * 1000;
 const LIVE_CACHE_SECONDS = 10 * 60;
@@ -58,6 +61,56 @@ function cachedLiveSearch(apiKey: string): (name: string) => Promise<LiveCompany
     );
     return results;
   };
+}
+
+// Live company profiles cached for an hour: due dates only change when a
+// company files.
+function cachedProfile(apiKey: string): (number: string) => Promise<LiveProfile | null> {
+  const fetchProfile = companiesHouseProfile(apiKey);
+  return async (number) => {
+    const cacheKey = new Request(`https://cache.internal/ch-company/${encodeURIComponent(number)}`);
+    const cache = (caches as unknown as { default: Cache }).default;
+    const hit = await cache.match(cacheKey);
+    if (hit) return hit.json();
+    const profile = await fetchProfile(number);
+    await cache.put(
+      cacheKey,
+      new Response(JSON.stringify(profile), { headers: { 'content-type': 'application/json', 'cache-control': 'max-age=3600' } }),
+    );
+    return profile;
+  };
+}
+
+// Domain lookups cached for an hour per domain, so repeat checks don't hit the
+// registries again (their terms ask for low-volume use).
+const cachedFetch: typeof fetch = async (input, init) => {
+  const cache = (caches as unknown as { default: Cache }).default;
+  const key = new Request(`https://cache.internal/rdap?u=${encodeURIComponent(String(input))}`);
+  const hit = await cache.match(key);
+  if (hit) return new Response(null, { status: Number(hit.headers.get('x-rdap-status')) });
+  const res = await fetch(input, init);
+  if (res.status === 200 || res.status === 404) {
+    await cache.put(key, new Response('', { headers: { 'x-rdap-status': String(res.status), 'cache-control': 'max-age=3600' } }));
+  }
+  return res;
+};
+
+export async function runDomainCheck(name: string) {
+  return checkDomains(name, cachedFetch);
+}
+
+export async function runNameIdeas(keywords: string[], page: number) {
+  const manifest = await currentManifest();
+  return manifest ? nameIdeas(keywords, manifest, loadText, page) : null;
+}
+
+export async function runCompanySearch(query: string) {
+  return searchCompanies(query, loadText, await currentManifest());
+}
+
+export async function runCompanyDetails(number: string) {
+  const apiKey = runtime.COMPANIES_HOUSE_API_KEY;
+  return companyDetails(number, loadText, await currentManifest(), apiKey ? cachedProfile(apiKey) : undefined);
 }
 
 export async function runNameCheck(name: string) {

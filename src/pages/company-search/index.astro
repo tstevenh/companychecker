@@ -1,0 +1,114 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompanySearchForm from '../../components/CompanySearchForm.astro';
+import Faq from '../../components/Faq.astro';
+import RelatedPages from '../../components/RelatedPages.astro';
+import Src from '../../components/Src.astro';
+import GuideSources from '../../components/GuideSources.astro';
+import { faqSchema, toolSchema } from '../../lib/schema';
+
+const title = 'UK company search: look up any company by name or number';
+const description =
+  'Free UK company search. Find any live company by name or number and see its status, incorporation date and next confirmation statement and accounts dates.';
+
+const faq = [
+  {
+    q: 'What can I find with this search?',
+    a: 'Every live company on the UK register: its exact registered name, company number, status (for example active, or proposal to strike off), date of incorporation, and when its next confirmation statement and accounts are due.',
+  },
+  {
+    q: 'Why can\'t I find a company?',
+    a: 'Our search covers live companies, so dissolved companies don\'t appear. Names are matched from the start after "The", "Ltd" and punctuation are removed, so search "Acme" rather than "Ltd Acme". Very new companies can take a few weeks to appear; search by company number to get the live record.',
+  },
+  {
+    q: 'How do I find a company number?',
+    a: 'It\'s on the company\'s certificate of incorporation, its website, business letters and order forms (companies must <a href="/sources/#disclosure-company-number">show it there by law</a>), and on its Companies House record. Numbers are 8 characters, sometimes starting with letters such as SC for Scotland or NI for Northern Ireland.',
+  },
+  {
+    q: 'Can I see who runs a company?',
+    a: 'This search shows company details and deadlines. To see directors, people with significant control and filed documents, open the company\'s record on Companies House using the link on each company page.',
+  },
+  {
+    q: 'Is the search free?',
+    a: 'Yes. So is the official Companies House register, which we link to from every company page.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  breadcrumbs={[{ name: 'Company search', href: '/company-search/' }]}
+  schema={[toolSchema({ name: 'UK company search', description, href: '/company-search/' }), faqSchema(faq)]}
+>
+  <h1>UK company search</h1>
+  <p class="lede">
+    Look up any live UK company by name or company number. See whether it's active, when it was set up, and when its next
+    filings are due.
+  </p>
+
+  <CompanySearchForm />
+
+  <h2>What each company page shows</h2>
+  <ul>
+    <li><strong>Registered name and number</strong>, exactly as they appear on the public register.</li>
+    <li><strong>Status</strong>: active, or flagged, for example with a proposal to strike off.</li>
+    <li><strong>Incorporation date</strong>: how long the company has existed.</li>
+    <li><strong>Next deadlines</strong> for the <a href="/confirmation-statement/">confirmation statement</a> and annual accounts, with how many days are left or how late they are.</li>
+    <li><strong>A link to the full Companies House record</strong> for directors, filing history and documents.</li>
+  </ul>
+
+  <h2>Searching by name</h2>
+  <p>
+    Type the start of the name. We match it the way Companies House compares names, so "acme", "The Acme" and "ACME LTD"
+    all find the same companies. Results are listed alphabetically; add words to narrow them down.
+  </p>
+
+  <h2>Searching by number</h2>
+  <p>
+    Enter the company number with or without leading zeros or spaces. "6303010" and "06303010" both work. Numbers with a
+    letter prefix, such as "SC123456", go straight to that company. When a number is entered, we check Companies House
+    live where possible, so the deadlines reflect the latest filings.
+  </p>
+
+  <h2>The official Companies House search</h2>
+  <p>
+    Companies House runs its own free service, Find and update company information, where you can search by company
+    name, company number or officer name.<Src id="search-service" /> Searching it costs nothing.<Src id="search-free" /> It
+    adds detail our search doesn't show:
+  </p>
+  <ul>
+    <li>Registered address, officers (current and resigned), filed document images, charges, previous names and insolvency information.<Src id="search-free-details" /></li>
+    <li>A search for disqualified directors.<Src id="search-disqualified" /></li>
+    <li>Advanced, alphabetical and dissolved company searches.<Src id="search-other-tools" /></li>
+    <li>Free email alerts when a company updates its details.<Src id="search-email-alerts" /></li>
+  </ul>
+  <p>
+    One thing to bear in mind with any search: Companies House doesn't check the accuracy of the information companies
+    file.<Src id="search-accuracy-disclaimer" /> Every company page here links straight to its official record.
+  </p>
+
+  <h2>Why look up a company?</h2>
+  <ul>
+    <li><strong>Before you trade with it</strong>: confirm it exists, is active and isn't being struck off.</li>
+    <li><strong>Before you choose a name</strong>: see which companies already use similar names. For a yes-or-no answer, use the <a href="/">name checker</a>.</li>
+    <li><strong>For your own company</strong>: check your next confirmation statement and accounts dates.</li>
+  </ul>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/', '/confirmation-statement/', '/vat-number-checker/', '/companies-house-identity-verification/']} />
+
+  <GuideSources
+    factIds={['search-service', 'search-free', 'search-free-details', 'search-disqualified', 'search-other-tools', 'search-email-alerts', 'search-accuracy-disclaimer', 'disclosure-company-number']}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>

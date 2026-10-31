@@ -28,6 +28,7 @@ const byCategory = Object.entries(CATEGORY_LABELS)
     byCategory.map((group) => (
       <section>
         <h2>{group.label}</h2>
+        <div class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -55,7 +56,14 @@ const byCategory = Object.entries(CATEGORY_LABELS)
             ))}
           </tbody>
         </table>
+        </div>
       </section>
     ))
   }
 </Base>
+
+<style>
+  td {
+    overflow-wrap: anywhere;
+  }
+</style>

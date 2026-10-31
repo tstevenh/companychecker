@@ -1,5 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import { articleSchema } from '../lib/schema';
 import Fact from '../components/Fact.astro';
 import GuideSources from '../components/GuideSources.astro';
 import NameCheckForm from '../components/NameCheckForm.astro';
@@ -8,7 +10,10 @@ import RegistrationOptions from '../components/RegistrationOptions.astro';
 
 <Base
   title="How to register a limited company in the UK (step by step)"
-  description="What you need to register a private limited company with Companies House: name, registered office, directors, shareholders, identity verification, costs and how long it takes."
+  description="What you need to register a UK private limited company: name, registered office, directors, shareholders, identity verification, cost and timings."
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Register a limited company', href: '/register-a-limited-company/' }]}
+  schema={[articleSchema({ title: "How to register a limited company in the UK (step by step)", description: "What you need to register a UK private limited company: name, registered office, directors, shareholders, identity verification, cost and timings.", href: '/register-a-limited-company/', updated: '2026-10-31' })]}
 >
   <h1>How to register a limited company</h1>
   <p>
@@ -60,6 +65,8 @@ import RegistrationOptions from '../components/RegistrationOptions.astro';
 
   <h2>Ways to register, compared</h2>
   <RegistrationOptions />
+
+  <RelatedPages hrefs={['/', '/companies-house-identity-verification/', '/registered-office-address/', '/trade-mark-search/']} />
 
   <GuideSources
     factIds={[

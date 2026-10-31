@@ -70,6 +70,19 @@ export function findCompany(shardText: string, number: string): CompanyRow | nul
   return index < lines.length && lineKey(lines[index]) === number ? decodeCompanyLine(lines[index]) : null;
 }
 
+// Names whose normalised form starts with `prefix`, in alphabetical order, from
+// one shard. Callers pass the following shard's text to continue a run that
+// reaches the end of the first.
+export function namesWithPrefix(shardText: string, prefix: string, limit: number): NameEntry[] {
+  const lines = shardLines(shardText);
+  const out: NameEntry[] = [];
+  for (let i = lowerBound(lines, prefix); i < lines.length && out.length < limit; i++) {
+    if (!lineKey(lines[i]).startsWith(prefix)) break;
+    out.push(decodeNameLine(lines[i]));
+  }
+  return out;
+}
+
 export type LoadText = (key: string) => Promise<string | null>;
 
 async function loadShard(manifest: IndexManifest, kind: ShardKind, key: string, load: LoadText): Promise<string> {
@@ -85,4 +98,19 @@ export async function lookupName(manifest: IndexManifest, key: string, load: Loa
 
 export async function lookupCompany(manifest: IndexManifest, number: string, load: LoadText): Promise<CompanyRow | null> {
   return findCompany(await loadShard(manifest, 'companies', number, load), number);
+}
+
+export async function searchNames(manifest: IndexManifest, prefix: string, load: LoadText, limit = 25): Promise<NameEntry[]> {
+  const firstKeys = manifest.names.firstKeys;
+  let index = findShardIndex(firstKeys, prefix);
+  const results: NameEntry[] = [];
+  // A prefix can span shards; read on while the next shard still starts with it.
+  while (index < firstKeys.length && results.length < limit) {
+    const text = await load(shardKey(manifest.snapshot, 'names', index));
+    if (text === null) throw new Error(`Missing shard names/${index} for snapshot ${manifest.snapshot}`);
+    results.push(...namesWithPrefix(text, prefix, limit - results.length));
+    index++;
+    if (index >= firstKeys.length || !firstKeys[index].startsWith(prefix)) break;
+  }
+  return results;
 }

@@ -1,0 +1,81 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '../../components/Faq.astro';
+import GuideSources from '../../components/GuideSources.astro';
+import RelatedPages from '../../components/RelatedPages.astro';
+import Src from '../../components/Src.astro';
+import ToolForm from '../../components/ToolForm.astro';
+import { faqSchema, toolSchema } from '../../lib/schema';
+
+const title = 'Domain name checker: is the .co.uk, .uk or .com free?';
+const description =
+  'Check whether the .co.uk, .uk and .com domains for your business name are free, with results straight from the domain registries.';
+
+const faq = [
+  {
+    q: 'Where do the results come from?',
+    a: 'From the registries that run each ending: Nominet for .co.uk and .uk, and Verisign for .com. We ask their public registration lookup services, the same ones registrars use.',
+  },
+  {
+    q: 'Does "looks available" mean I can definitely buy it?',
+    a: 'Usually, but not always. Some names are reserved or blocked by the registry and still show as not registered. You\'ll find out for certain when you add the domain to a registrar\'s basket.',
+  },
+  {
+    q: 'Should I get the .co.uk or the .com?',
+    a: 'If your customers are in the UK, .co.uk is the most familiar choice. Many businesses register both, plus .uk, so nobody else can take them and you can point them all at one website.',
+  },
+  {
+    q: 'The domain I want is taken. What now?',
+    a: 'Try a short addition ("get", "hq", your town), a hyphen-free variation, or another ending. Or pick a company name that has free domains: the <a href="/business-name-generator/">business name generator</a> links each idea to a domain check.',
+  },
+  {
+    q: 'Does registering a company name give me the domain?',
+    a: 'No. Company names and domains are separate systems. Registering one doesn\'t reserve the other, so check and secure both.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  breadcrumbs={[{ name: 'Domain name checker', href: '/domain-name-checker/' }]}
+  schema={[toolSchema({ name: 'Domain name checker', description, href: '/domain-name-checker/' }), faqSchema(faq)]}
+>
+  <h1>Domain name checker</h1>
+  <p class="lede">
+    Enter your business name to see whether the .co.uk, .uk and .com domains are free. We turn the name into a domain,
+    so "Acme Widgets Ltd" checks acmewidgets.co.uk, acmewidgets.uk and acmewidgets.com.
+  </p>
+
+  <ToolForm action="/domain-name-checker/results/" name="name" label="Business name or domain" button="Check domains" placeholder="e.g. Acme Widgets Ltd" maxlength={80} />
+
+  <h2>How it works</h2>
+  <ol>
+    <li>We drop company endings like "Ltd", turn "&amp;" into "and", flatten accents and remove spaces and punctuation.</li>
+    <li>We look up each domain in the registry's own registration database: Nominet for .co.uk and .uk<Src id="rdap-uk-base" />, Verisign for .com.<Src id="rdap-com-base" /></li>
+    <li>A registered domain has a record; an unregistered one comes back "not found".<Src id="rdap-404-standard" /></li>
+  </ol>
+
+  <h2>Choosing a domain for a UK business</h2>
+  <ul>
+    <li><strong>Match your company name</strong> where you can. It helps customers find you and makes your emails look trustworthy.</li>
+    <li><strong>Keep it short and easy to spell.</strong> Avoid hyphens and numbers people might mishear.</li>
+    <li><strong>Secure the main endings together</strong>, .co.uk, .uk and .com, so a competitor can't take one.</li>
+    <li><strong>Check the company name and trade marks too.</strong> A domain doesn't stop someone else registering the company name, and neither overrides a trade mark.</li>
+  </ul>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/', '/business-name-generator/', '/trade-mark-search/', '/register-a-limited-company/']} />
+
+  <GuideSources factIds={['rdap-uk-base', 'rdap-com-base', 'rdap-404-standard']} />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>

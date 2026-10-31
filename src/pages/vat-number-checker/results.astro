@@ -1,0 +1,81 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolForm from '../../components/ToolForm.astro';
+import { checkVatNumber } from '../../lib/vat-number.ts';
+
+export const prerender = false;
+
+const vat = Astro.url.searchParams.get('vat') ?? '';
+if (!vat.trim()) return Astro.redirect('/vat-number-checker/', 302);
+const result = checkVatNumber(vat);
+
+const KIND_LABEL = {
+  standard: 'Standard VAT registration number',
+  branch: 'Branch trader number (9-digit number plus a 3-digit branch)',
+  government: 'Government department number',
+  health: 'Health authority number',
+};
+const FAILURE = {
+  empty: 'Enter a VAT number.',
+  format: "This isn't in a UK VAT number format. UK numbers are 9 digits (or 12 for branches), sometimes with GB at the start.",
+  'check-digits': "The last two digits don't match the rest of the number, so this can't be a valid UK VAT number. Check for a typing mistake.",
+  eu: 'This looks like an EU VAT number. Check it with the European Commission\'s VIES service instead.',
+};
+---
+
+<Base
+  title="VAT number check result | Company Name Checker"
+  description="UK VAT number format check."
+  noindex
+  breadcrumbs={[{ name: 'VAT number checker', href: '/vat-number-checker/' }, { name: 'Result', href: Astro.url.pathname }]}
+>
+  <ToolForm action="/vat-number-checker/results/" name="vat" label="UK VAT number" button="Check" value={vat} maxlength={20} />
+
+  {
+    result.ok ? (
+      <section class="verdict ok">
+        <h1>{result.display} is in a valid format</h1>
+        <p>{KIND_LABEL[result.kind]}{result.prefix === 'XI' ? ', with the Northern Ireland (XI) prefix' : ''}.</p>
+        {(result.kind === 'standard' || result.kind === 'branch') && <p>The check digits are correct.</p>}
+      </section>
+    ) : (
+      <section class="verdict bad">
+        <h1>{result.reason === 'eu' ? 'This is an EU VAT number' : 'Not a valid UK VAT number'}</h1>
+        <p>{FAILURE[result.reason]}</p>
+      </section>
+    )
+  }
+
+  <h2>Next: confirm it with HMRC</h2>
+  <p>
+    A correct format doesn't prove the number is registered, or that it belongs to the business you're dealing with. Use
+    HMRC's free <a href="https://www.gov.uk/check-uk-vat-number" rel="nofollow noopener">Check a UK VAT number</a> service:
+    it shows the name and address the number is registered to.
+  </p>
+  {
+    !result.ok && result.reason === 'eu' && (
+      <p>
+        For EU numbers, use <a href="https://ec.europa.eu/taxation_customs/vies/#/vat-validation" rel="nofollow noopener">VIES</a>.
+      </p>
+    )
+  }
+</Base>
+
+<style>
+  .verdict {
+    border-left: 4px solid var(--line);
+    padding: 0.25rem 0 0.25rem 1rem;
+    margin: 1.5rem 0;
+  }
+  .verdict h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+    word-break: break-word;
+  }
+  .ok {
+    border-color: #1a7f37;
+  }
+  .bad {
+    border-color: #cf222e;
+  }
+</style>

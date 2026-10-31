@@ -1,0 +1,47 @@
+---
+import { pageByHref } from '../data/pages';
+
+interface Props {
+  hrefs: string[];
+  heading?: string;
+}
+
+const { hrefs, heading = 'Related' } = Astro.props;
+const pages = hrefs.map(pageByHref);
+---
+
+<section class="related" aria-labelledby="related-heading">
+  <h2 id="related-heading">{heading}</h2>
+  <ul>
+    {
+      pages.map((page) => (
+        <li>
+          <a href={page.href}>{page.title}</a>
+          <span class="muted">{page.description}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .related {
+    margin-top: 2.5rem;
+  }
+  .related ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .related li {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .related a {
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+import Base from '../layouts/Base.astro';
+import { PAGES } from '../data/pages';
+
+const tools = PAGES.filter((p) => p.kind === 'tool');
+const guides = PAGES.filter((p) => p.kind === 'guide');
+---
+
+<Base
+  title="Guides and tools for UK limited companies"
+  description="Free tools and plain-English guides for starting and running a UK limited company, from name checks and company search to confirmation statements."
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }]}
+>
+  <h1>Guides and tools</h1>
+  <p>
+    Everything here is free and based on official Companies House, GOV.UK and HMRC sources. Each fee, deadline and rule
+    links to the page it comes from, and the full list is on <a href="/sources/">sources</a>.
+  </p>
+
+  <h2>Starting a company</h2>
+  <p>
+    Pick a name that's available, check you can get the domain and that nobody has trade-marked it, then register. The
+    <a href="/register-a-limited-company/">registration guide</a> walks through each step.
+  </p>
+
+  <h2>Running a company</h2>
+  <p>
+    Once registered, a company files a confirmation statement every year and accounts every year, and its directors
+    must verify their identity with Companies House. Use the <a href="/company-search/">company search</a> to see any
+    company's next deadlines.
+  </p>
+
+  <h2>Tools</h2>
+  <ul class="cards">
+    {
+      tools.map((page) => (
+        <li>
+          <a href={page.href}>{page.title}</a>
+          <span class="muted">{page.description}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Guides</h2>
+  <ul class="cards">
+    {
+      guides.map((page) => (
+        <li>
+          <a href={page.href}>{page.title}</a>
+          <span class="muted">{page.description}</span>
+        </li>
+      ))
+    }
+  </ul>
+</Base>
+
+<style>
+  .cards {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .cards li {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .cards a {
+    font-weight: 600;
+  }
+</style>

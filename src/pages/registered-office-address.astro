@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+
+const title = 'Registered office address: rules and how to change it';
+const description =
+  "The rules for a UK company's registered office address, alternatives to using your home, how to change it, and what happens if it isn't appropriate.";
+
+const faq = [
+  {
+    q: 'Can I use my home address as my registered office?',
+    a: 'Yes, if it meets the rules, but it will be shown on the public register. Many owners use an accountant, solicitor or registered office service instead.',
+  },
+  {
+    q: 'Can I use a PO Box?',
+    a: 'No. Royal Mail PO Boxes, and similar services from other providers, can no longer be used as a registered office.',
+  },
+  {
+    q: 'Can my registered office be in another part of the UK?',
+    a: 'No. It must stay in the part of the UK where the company was incorporated: England and Wales, Scotland, or Northern Ireland.',
+  },
+  {
+    q: 'Do I need to tell HMRC when I change it?',
+    a: "No. Companies House tells HMRC that you've changed your registered office address.",
+  },
+  {
+    q: 'Is the registered office the same as my trading address?',
+    a: "Not necessarily. The registered office is the company's official address for legal post. You can trade from somewhere else.",
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Registered office address', href: '/registered-office-address/' }]}
+  schema={[articleSchema({ title, description, href: '/registered-office-address/', updated: '2026-10-31' }), faqSchema(faq)]}
+>
+  <h1>Registered office address</h1>
+  <p class="lede">
+    Every UK company needs a registered office: the official address where legal letters and notices are sent. It's on
+    the public register, so where you put it matters.
+  </p>
+
+  <h2>The rules</h2>
+  <ul>
+    <li><strong>A physical UK address</strong> in the same part of the UK the company was registered in.<Src id="formation-registered-office" /></li>
+    <li><strong>"Appropriate" at all times.</strong><Src id="ro-appropriate-duty" /> Post delivered there must be expected to come to the attention of someone acting for the company<Src id="ro-appropriate-test-attention" />, and delivery must be able to be recorded with an acknowledgement, such as a signature.<Src id="ro-appropriate-test-ack" /></li>
+    <li><strong>No PO Boxes</strong>, from Royal Mail or anyone else.<Src id="ro-no-po-box" /></li>
+  </ul>
+  <p>Failing to keep an appropriate address without a reasonable excuse is an offence by the company and every officer in default.<Src id="ro-offence" /></p>
+
+  <h2>Home address or a service?</h2>
+  <p>If you use your home address as the registered office, it will be available to the public.<Src id="ro-home-address-public" /> The common alternatives:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Option</th><th scope="col">Good for</th><th scope="col">Things to check</th></tr></thead>
+      <tbody>
+        <tr><td>Your home</td><td>Free, simple</td><td>Your address becomes public; check your lease or mortgage allows it</td></tr>
+        <tr><td>Your accountant or solicitor</td><td>Privacy; they handle official post</td><td>Ask permission first; usually included only with their services</td></tr>
+        <tr><td>A registered office service</td><td>Privacy at low cost, mail scanning or forwarding</td><td>The address must still be "appropriate": they must accept and record post for you</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>How to change it</h2>
+  <ol>
+    <li>Make sure the new address is in the same part of the UK as where the company was incorporated.<Src id="ro-same-part-uk" /></li>
+    <li>File the change online with Companies House, which needs your company authentication code, or use paper form AD01.<Src id="ro-how-to-change" /> A paper form is needed in some cases, for example if the address was moved to the Companies House default address.<Src id="ro-paper-cases" /></li>
+    <li>Confirm in the notice that the new address is appropriate.<Src id="ro-appropriate-statement" /></li>
+  </ol>
+  <p>
+    The change takes effect once Companies House registers it.<Src id="ro-takes-effect" /> For <Fact id="ro-old-address-service" />
+    after that, documents can still be validly served at the old address. Companies House tells HMRC about the change for you.<Src id="ro-hmrc-informed" />
+  </p>
+
+  <h2>If your address isn't appropriate</h2>
+  <p>
+    Companies House can move an inappropriate registered office to a default address it holds.<Src id="ro-default-address" />
+    The company then has <Fact id="ro-default-28-days" /> to provide an appropriate address, with evidence of ownership, or
+    Companies House could start striking the company off.
+  </p>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/register-a-limited-company/', '/confirmation-statement/', '/companies-house-identity-verification/', '/dormant-company/']} />
+
+  <GuideSources
+    factIds={[
+      'formation-registered-office', 'ro-appropriate-duty', 'ro-appropriate-test-attention', 'ro-appropriate-test-ack',
+      'ro-no-po-box', 'ro-offence', 'ro-home-address-public', 'ro-same-part-uk', 'ro-how-to-change', 'ro-paper-cases',
+      'ro-appropriate-statement', 'ro-takes-effect', 'ro-old-address-service', 'ro-hmrc-informed', 'ro-default-address',
+      'ro-default-28-days',
+    ]}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>

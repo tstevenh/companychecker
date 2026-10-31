@@ -1,0 +1,178 @@
+---
+import Base from '../layouts/Base.astro';
+import CompanySearchForm from '../components/CompanySearchForm.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+
+const title = 'Confirmation statement: deadline, fee and how to file';
+const description =
+  'When your Companies House confirmation statement is due, the fee, what you confirm, identity verification and late penalties, with a free deadline checker.';
+
+const faq = [
+  {
+    q: 'What is a confirmation statement?',
+    a: 'A yearly filing in which a company confirms that the information Companies House holds about it is correct, such as its officers, shareholders, people with significant control and SIC code. It replaced the annual return.',
+  },
+  {
+    q: 'Do I have to file if nothing has changed?',
+    a: 'Yes. You must file even if nothing changed during the review period. You simply confirm the details are still correct.',
+  },
+  {
+    q: 'Does a dormant company need to file one?',
+    a: 'Yes. Every company, including dormant and non-trading companies, must file at least once a year. See <a href="/dormant-company/">dormant companies</a>.',
+  },
+  {
+    q: 'Can I file early?',
+    a: 'Yes. If you file early you choose a new confirmation statement date, and your next review period runs from that date.',
+  },
+  {
+    q: "Why can't I file my confirmation statement?",
+    a: "A common reason since November 2025: Companies House won't accept it until every director has verified their identity and given their personal code. See <a href=\"/companies-house-identity-verification/\">identity verification</a>.",
+  },
+  {
+    q: 'Do I pay the fee every time I file?',
+    a: 'No. The annual fee is only charged on the first confirmation statement in each 12-month payment period.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Confirmation statement', href: '/confirmation-statement/' }]}
+  schema={[articleSchema({ title, description, href: '/confirmation-statement/', updated: '2026-10-31' }), faqSchema(faq)]}
+>
+  <h1>Confirmation statement</h1>
+  <p class="lede">
+    Every company, including dormant and non-trading ones, must file a confirmation statement at least once every 12
+    months.<Src id="cs-what-it-is" /> It confirms that what Companies House holds about the company is right. Here's how
+    the deadline works, what it costs and what you need before you file.
+  </p>
+
+  <h2>Check your company's deadline</h2>
+  <p>Search by company name or number to see the next confirmation statement and accounts dates, and how many days are left.</p>
+  <CompanySearchForm button="Check deadline" />
+
+  <h2>When it's due</h2>
+  <p>
+    Your <strong>review period</strong> ends 12 months after the company was incorporated (for the first statement) or
+    12 months after your last confirmation statement date.<Src id="cs-review-period" /> You can file up to
+    <Fact id="cs-due-date" /> after the review period ends. You can also file early, but then you choose a new
+    confirmation statement date.<Src id="cs-early-filing" />
+  </p>
+  <div class="table-wrap">
+    <table>
+      <caption class="muted">Worked example</caption>
+      <tbody>
+        <tr><th scope="row">Company incorporated</th><td>10 March 2026</td></tr>
+        <tr><th scope="row">First review period</th><td>10 March 2026 to 9 March 2027</td></tr>
+        <tr><th scope="row">Last day to file</th><td>23 March 2027 (14 days later)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What it costs</h2>
+  <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><th scope="row">Online</th><td><Fact id="ch-fee-confirmation-statement-online" /></td></tr>
+        <tr><th scope="row">Paper form CS01 by post</th><td><Fact id="ch-fee-confirmation-statement-paper" /></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>You only pay with the first confirmation statement in each 12-month payment period, so filing an extra one to report a change costs nothing more.<Src id="cs-fee-once-per-period" /></p>
+
+  <h2>What you confirm or update</h2>
+  <p>You must file even if nothing changed during the review period.<Src id="cs-no-changes" /> Some changes have to be filed separately before the statement; others go on the statement itself.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">File these separately first</th><th scope="col">Report these on the statement</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>
+            <ul>
+              <li>Directors and company secretary</li>
+              <li>People with significant control (PSCs)</li>
+              <li>Registered office address</li>
+              <li>Registered email address</li>
+            </ul>
+            <Src id="cs-prior-changes" />
+          </td>
+          <td>
+            <ul>
+              <li>SIC code (what the company does)</li>
+              <li>Statement of capital</li>
+              <li>Trading status of shares</li>
+              <li>PSC exemption</li>
+              <li>Shareholder information</li>
+            </ul>
+            <Src id="cs-changes-within-statement" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    You'll also give a registered email address if you haven't already (it isn't published)<Src id="cs-registered-email" />,
+    and state that the company's intended future activities are lawful.<Src id="cs-lawful-purpose" />
+  </p>
+
+  <h2>Identity verification comes first</h2>
+  <p>
+    Companies House won't accept a confirmation statement until every director has verified their identity: each
+    director's personal code goes on the statement.<Src id="cs-iv-required" /> Existing directors give their code with
+    the company's next confirmation statement<Src id="idv-existing-directors-deadline" />, so verify well before your
+    filing date. Unverified directors are the most common reason a statement gets stuck. See the
+    <a href="/companies-house-identity-verification/">identity verification guide</a>.
+  </p>
+
+  <h2>How to file</h2>
+  <p>File online with Companies House, which needs your Companies House password and company authentication code, or send paper form CS01 by post.<Src id="cs-how-to-file" /></p>
+  <ol>
+    <li>Make sure every director has a Companies House personal code.</li>
+    <li>File any changes to officers, PSCs, registered office or email first.</li>
+    <li>Sign in, review the details shown, update the SIC code or shareholders if needed, and confirm.</li>
+    <li>Pay the fee if it's the first statement in your payment period.</li>
+  </ol>
+
+  <h2>If you file late</h2>
+  <p>
+    Missing the deadline is a criminal offence by the company and every officer in default.<Src id="cs-offence" /> The
+    company can be fined up to <Fact id="cs-late-fine" /> and may be struck off the register.
+  </p>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/companies-house-identity-verification/', '/dormant-company/', '/company-search/', '/registered-office-address/']} />
+
+  <GuideSources
+    factIds={[
+      'cs-what-it-is', 'cs-review-period', 'cs-due-date', 'cs-early-filing',
+      'ch-fee-confirmation-statement-online', 'ch-fee-confirmation-statement-paper', 'cs-fee-once-per-period',
+      'cs-no-changes', 'cs-prior-changes', 'cs-changes-within-statement', 'cs-registered-email', 'cs-lawful-purpose',
+      'cs-iv-required', 'idv-existing-directors-deadline', 'cs-how-to-file', 'cs-offence', 'cs-late-fine',
+    ]}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  caption {
+    text-align: left;
+    font-size: 0.9rem;
+  }
+  td ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+  li {
+    margin: 0.3rem 0;
+  }
+</style>

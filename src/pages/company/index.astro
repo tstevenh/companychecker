@@ -1,0 +1,117 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompanySearchForm from '../../components/CompanySearchForm.astro';
+import RelatedPages from '../../components/RelatedPages.astro';
+import { runCompanyDetails } from '../../lib/server/runtime.ts';
+import { parseCompanyNumber } from '../../lib/company-number.ts';
+import { daysUntil } from '../../lib/company-lookup.ts';
+import { formatDate } from '../../lib/facts';
+
+export const prerender = false;
+
+const number = parseCompanyNumber(Astro.url.searchParams.get('number') ?? '');
+if (!number) return Astro.redirect('/company-search/', 302);
+const details = await runCompanyDetails(number);
+if (!details) Astro.response.status = 404;
+
+const fmt = (iso: string) => (/^\d{4}-\d{2}-\d{2}$/.test(iso) ? formatDate(new Date(iso)) : 'Not shown');
+const statusText = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ') : 'Unknown');
+
+function deadline(label: string, iso: string) {
+  const days = daysUntil(iso);
+  return {
+    label,
+    date: fmt(iso),
+    note: days === null ? '' : days < 0 ? `Overdue by ${-days} day${days === -1 ? '' : 's'}` : days === 0 ? 'Due today' : `${days} day${days === 1 ? '' : 's'} left`,
+    overdue: days !== null && days < 0,
+  };
+}
+
+const deadlines = details
+  ? [
+      deadline('Next confirmation statement due', details.company.confirmationStatementDue),
+      deadline('Next accounts due', details.company.accountsDue),
+    ]
+  : [];
+const chUrl = `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(number)}`;
+---
+
+<Base
+  title={details ? `${details.company.name} (${number}): status and deadlines` : `Company ${number} not found`}
+  description="Company status, incorporation date and next filing deadlines from Companies House data."
+  noindex
+  breadcrumbs={[{ name: 'Company search', href: '/company-search/' }, { name: number, href: Astro.url.pathname }]}
+>
+  {
+    details ? (
+      <>
+        <h1>{details.company.name}</h1>
+        <dl class="facts">
+          <div><dt>Company number</dt><dd>{number}</dd></div>
+          <div><dt>Status</dt><dd>{statusText(details.company.status)}</dd></div>
+          <div><dt>Incorporated</dt><dd>{fmt(details.company.incorporatedOn)}</dd></div>
+        </dl>
+
+        <h2>Filing deadlines</h2>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              {deadlines.map((d) => (
+                <tr>
+                  <th scope="row">{d.label}</th>
+                  <td>{d.date}</td>
+                  <td class={d.overdue ? 'overdue' : 'muted'}>{d.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p class="muted small">
+          {details.source === 'live'
+            ? 'From Companies House, checked within the last hour.'
+            : `From Companies House data of ${details.indexSnapshot ? formatDate(new Date(details.indexSnapshot)) : 'last month'}. If the company has filed since, its next dates will have moved.`}{' '}
+          See the full record on <a href={chUrl} rel="nofollow noopener">Companies House</a>.
+        </p>
+        <RelatedPages
+          heading="What these deadlines mean"
+          hrefs={['/confirmation-statement/', '/companies-house-identity-verification/', '/dormant-company/']}
+        />
+      </>
+    ) : (
+      <>
+        <h1>No live company with number {number}</h1>
+        <p>
+          It may have been dissolved, or the number may be mistyped. Check the{' '}
+          <a href={chUrl} rel="nofollow noopener">Companies House record</a>, or search again:
+        </p>
+        <CompanySearchForm />
+      </>
+    )
+  }
+</Base>
+
+<style>
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+  }
+  .facts div {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+  }
+  dt {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  .overdue {
+    color: #cf222e;
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,95 @@
+---
+import Base from '../../layouts/Base.astro';
+import NameIdeasForm from '../../components/NameIdeasForm.astro';
+import { runNameIdeas } from '../../lib/server/runtime.ts';
+import { parseKeywords } from '../../lib/name-ideas.ts';
+
+export const prerender = false;
+
+const raw = Astro.url.searchParams.get('keywords') ?? '';
+const keywords = parseKeywords(raw);
+if (keywords.length === 0) return Astro.redirect('/business-name-generator/', 302);
+const page = Math.min(Math.max(Number.parseInt(Astro.url.searchParams.get('page') ?? '0', 10) || 0, 0), 20);
+const ideas = await runNameIdeas(keywords, page);
+const available = ideas?.filter((i) => i.available) ?? [];
+const taken = ideas?.filter((i) => !i.available) ?? [];
+const moreUrl = `/business-name-generator/ideas/?keywords=${encodeURIComponent(raw)}&page=${page + 1}`;
+---
+
+<Base
+  title={`Business name ideas for "${keywords.join(' ')}" | Company Name Checker`}
+  description="Business name ideas checked against every live UK company."
+  noindex
+  breadcrumbs={[{ name: 'Business name generator', href: '/business-name-generator/' }, { name: 'Ideas', href: Astro.url.pathname }]}
+>
+  <h1>Name ideas for "{keywords.join(' ')}"</h1>
+  <NameIdeasForm value={raw} />
+
+  {
+    ideas === null ? (
+      <p>Our company data is temporarily unavailable, so we can't check ideas right now. Please try again shortly.</p>
+    ) : (
+      <>
+        <h2>{available.length} ideas that look available</h2>
+        <p class="muted">No live UK company has a name that counts as the same. Run a full check before you decide: it also lists similar names.</p>
+        <ul class="ideas">
+          {available.map((idea) => (
+            <li>
+              <span class="name">{idea.name}</span>
+              <span class="actions">
+                <a href={`/check/?name=${encodeURIComponent(idea.name)}`}>Full check</a>
+                <a href={`/domain-name-checker/results/?name=${encodeURIComponent(idea.name)}`}>Domains</a>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p>
+          <a href={moreUrl}>Show more ideas</a>
+        </p>
+
+        {taken.length > 0 && (
+          <>
+            <h2>Already taken</h2>
+            <ul class="ideas taken">
+              {taken.map((idea) => (
+                <li>
+                  <span class="name">{idea.name}</span>
+                  <span class="muted">same as {idea.takenBy}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </>
+    )
+  }
+</Base>
+
+<style>
+  .ideas {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .ideas li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .name {
+    font-weight: 600;
+  }
+  .actions {
+    display: flex;
+    gap: 1rem;
+  }
+  .taken .name {
+    font-weight: 400;
+    text-decoration: line-through;
+  }
+</style>

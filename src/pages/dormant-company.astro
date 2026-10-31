@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+
+const title = 'Dormant company: the rules and what you still file';
+const description =
+  'What makes a UK company dormant for Companies House and HMRC, which transactions are allowed, and what a dormant company still has to file each year.';
+
+const faq = [
+  {
+    q: 'Is a dormant company the same as a closed company?',
+    a: 'No. A dormant company still exists on the register and must keep filing. Closing a company means having it struck off or dissolved, which is a separate process.',
+  },
+  {
+    q: 'Does a dormant company have to file a confirmation statement?',
+    a: 'Yes, every year, and the annual fee applies. See the <a href="/confirmation-statement/">confirmation statement guide</a>.',
+  },
+  {
+    q: 'Can a dormant company pay the Companies House fee without losing dormant status?',
+    a: 'Yes. Companies House filing fees, late filing penalties and money paid for shares when the company was set up don\'t count as significant transactions.',
+  },
+  {
+    q: 'Do I need to tell Companies House when the company starts trading?',
+    a: 'No. Your next accounts simply won\'t be dormant accounts. You do need to tell HMRC, because Corporation Tax applies once you trade.',
+  },
+  {
+    q: 'Do directors of a dormant company still need to verify their identity?',
+    a: 'Yes. The confirmation statement can\'t be filed until all directors are verified, whether or not the company trades. See <a href="/companies-house-identity-verification/">identity verification</a>.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Dormant companies', href: '/dormant-company/' }]}
+  schema={[articleSchema({ title, description, href: '/dormant-company/', updated: '2026-10-31' }), faqSchema(faq)]}
+>
+  <h1>Dormant companies</h1>
+  <p class="lede">
+    A company can stop trading without closing down. Companies House and HMRC each have their own idea of "dormant", and
+    a dormant company still has filings to make. Here's what each one means and what you need to do.
+  </p>
+
+  <h2>Dormant for Companies House</h2>
+  <p>
+    Companies House calls a company dormant if it has had no "significant" transactions in its financial year.<Src id="dormant-ch-definition" />
+    In law, that means no transaction that has to be entered in the company's accounting records.<Src id="dormant-sat-meaning" />
+  </p>
+  <p>These don't count as significant, so a dormant company can still:<Src id="dormant-excluded-transactions" /></p>
+  <ul>
+    <li>pay Companies House filing fees, including the change-of-name fee<Src id="dormant-excluded-name-fee" />;</li>
+    <li>pay late filing penalties;</li>
+    <li>receive money for shares when the company was set up.</li>
+  </ul>
+
+  <h2>What a dormant company still files with Companies House</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Filing</th><th scope="col">What to know</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Confirmation statement</td>
+          <td>Still required every year, with the same fee (<Fact id="ch-fee-confirmation-statement-online" /> online).<Src id="dormant-must-file" /></td>
+        </tr>
+        <tr>
+          <td>Annual accounts</td>
+          <td>
+            Dormant companies can file simpler "dormant accounts"<Src id="dormant-accounts-option" />. They need no profit and
+            loss account or directors' report<Src id="dormant-accounts-contents" />, but the deadline and late filing penalties
+            are the same as for other accounts.<Src id="dormant-accounts-deadline" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Paper form AA02 is only for companies limited by shares that have never traded.<Src id="dormant-aa02" /> From
+    <Fact id="dormant-software-2028" />, all accounts will have to be filed using commercial software.
+  </p>
+
+  <h2>Dormant for HMRC (Corporation Tax)</h2>
+  <p>
+    HMRC looks at trading, not accounting transactions. For Corporation Tax, trading includes buying, selling, renting out
+    property, advertising, employing someone or earning interest.<Src id="dormant-hmrc-trading-meaning" /> If the company
+    has stopped trading and has no other income, you can tell HMRC it's dormant.<Src id="dormant-hmrc-tell" />
+  </p>
+  <ol>
+    <li>Have your company's 10-digit Unique Taxpayer Reference (UTR), the company name and the date trading stopped ready.<Src id="dormant-hmrc-utr" /></li>
+    <li>Tell HMRC using its online service.</li>
+    <li>After that, you won't have to file Company Tax Returns unless HMRC asks you to or the company starts trading again.<Src id="dormant-hmrc-no-return" /></li>
+  </ol>
+  <p>
+    <strong>VAT:</strong> if the company won't trade again, deregister for VAT within <Fact id="dormant-vat-deregister" />
+    of becoming dormant. If you plan to restart, send nil VAT returns instead.
+  </p>
+
+  <h2>Starting to trade again</h2>
+  <p>
+    You don't need to tell Companies House; your next accounts will show the change.<Src id="dormant-restart-ch" /> Tell
+    HMRC so Corporation Tax is set up again, and reregister for VAT if you need to.
+  </p>
+
+  <h2>Checklist for a dormant company</h2>
+  <ul class="checklist">
+    <li>File the confirmation statement every year (all directors verified first)</li>
+    <li>File dormant accounts on time</li>
+    <li>Tell HMRC it's dormant for Corporation Tax</li>
+    <li>Deregister for VAT, or send nil returns if you'll restart</li>
+    <li>Keep the registered office address and registered email up to date</li>
+  </ul>
+  <p>Use the <a href="/company-search/">company search</a> to see your company's next filing dates.</p>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/confirmation-statement/', '/companies-house-identity-verification/', '/registered-office-address/', '/company-search/']} />
+
+  <GuideSources
+    factIds={[
+      'dormant-ch-definition', 'dormant-sat-meaning', 'dormant-excluded-transactions', 'dormant-excluded-name-fee',
+      'dormant-must-file', 'ch-fee-confirmation-statement-online', 'dormant-accounts-option', 'dormant-accounts-contents',
+      'dormant-accounts-deadline', 'dormant-aa02', 'dormant-software-2028', 'dormant-hmrc-trading-meaning',
+      'dormant-hmrc-tell', 'dormant-hmrc-utr', 'dormant-hmrc-no-return', 'dormant-vat-deregister', 'dormant-restart-ch',
+    ]}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+  .checklist {
+    list-style: '☐  ';
+  }
+</style>

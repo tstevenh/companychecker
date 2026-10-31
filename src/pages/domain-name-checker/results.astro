@@ -1,0 +1,79 @@
+---
+import Base from '../../layouts/Base.astro';
+import ToolForm from '../../components/ToolForm.astro';
+import { runDomainCheck } from '../../lib/server/runtime.ts';
+
+export const prerender = false;
+
+const name = Astro.url.searchParams.get('name') ?? '';
+if (!name.trim()) return Astro.redirect('/domain-name-checker/', 302);
+const result = await runDomainCheck(name);
+const LABELS = { available: 'Looks available', registered: 'Registered', unknown: "Couldn't check" } as const;
+---
+
+<Base
+  title={`Domains for "${name}" | Company Name Checker`}
+  description="Domain availability for .co.uk, .uk and .com."
+  noindex
+  breadcrumbs={[{ name: 'Domain name checker', href: '/domain-name-checker/' }, { name: 'Results', href: Astro.url.pathname }]}
+>
+  <h1>Domains for "{name}"</h1>
+  <ToolForm action="/domain-name-checker/results/" name="name" label="Business name or domain" button="Check domains" value={name} maxlength={80} />
+
+  {
+    !result ? (
+      <p>That doesn't leave enough letters or numbers for a domain. Try a name with at least two letters.</p>
+    ) : (
+      <>
+        <ul class="domains">
+          {result.results.map((r) => (
+            <li class={r.status}>
+              <span class="domain">{r.domain}</span>
+              <span class="status">{LABELS[r.status]}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="muted small">
+          "Looks available" means the registry has no record of the domain. Some names are reserved, so confirm with a
+          registrar when you buy. Results can be up to an hour old.
+        </p>
+        <p>
+          Next: <a href={`/check/?name=${encodeURIComponent(name)}`}>check the company name</a> and
+          <a href="/trade-mark-search/">search trade marks</a>.
+        </p>
+      </>
+    )
+  }
+</Base>
+
+<style>
+  .domains {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .domains li {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--line);
+    border-left-width: 4px;
+    border-radius: 8px;
+  }
+  .domain {
+    font-weight: 600;
+    word-break: break-all;
+  }
+  .available {
+    border-left-color: #1a7f37;
+  }
+  .registered {
+    border-left-color: #cf222e;
+  }
+  .unknown {
+    border-left-color: var(--muted);
+  }
+</style>

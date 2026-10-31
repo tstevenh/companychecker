@@ -1,0 +1,25 @@
+---
+// A small "source" marker after a sentence, linking to the fact on /sources/.
+// Use it where the fact is written into the prose rather than shown as a value.
+// Fails the build if the fact doesn't exist.
+import { getEntry } from 'astro:content';
+
+interface Props {
+  id: string;
+}
+
+const entry = await getEntry('facts', Astro.props.id);
+if (!entry) throw new Error(`Unknown fact "${Astro.props.id}"`);
+---
+
+<sup class="src"><a href={`/sources/#${entry.data.id}`} title={`Source: ${entry.data.source_title}`} aria-label={`Source: ${entry.data.source_title}`}>source</a></sup>
+
+<style>
+  .src {
+    font-size: 0.7em;
+    margin-left: 0.15em;
+  }
+  .src a {
+    color: var(--muted);
+  }
+</style>

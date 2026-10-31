@@ -1,0 +1,36 @@
+---
+// A questions-and-answers section. Answers are HTML strings so they can contain
+// links; pass the same list to the page's FAQPage structured data via faqSchema().
+interface Props {
+  items: { q: string; a: string }[];
+  heading?: string;
+}
+
+const { items, heading = 'Frequently asked questions' } = Astro.props;
+---
+
+<section class="faq">
+  <h2>{heading}</h2>
+  {
+    items.map((item) => (
+      <details>
+        <summary>{item.q}</summary>
+        <div set:html={item.a} />
+      </details>
+    ))
+  }
+</section>
+
+<style>
+  details {
+    border-bottom: 1px solid var(--line);
+    padding: 0.75rem 0;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+  }
+  details > div {
+    margin-top: 0.5rem;
+  }
+</style>

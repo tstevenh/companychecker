@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+
+const title = 'UK trade mark search: check a business name';
+const description =
+  'How to search the UK trade marks register for your business name, why a free company name can still clash, and what registering a trade mark costs.';
+
+const faq = [
+  {
+    q: 'If Companies House accepts my company name, can I use it freely?',
+    a: 'Not necessarily. Companies House doesn\'t check trade marks. If your name is too similar to someone\'s trade mark, they can complain, and you may have to change your company name.',
+  },
+  {
+    q: 'Do I have to register a trade mark?',
+    a: 'No, it\'s optional. A registered trade mark makes it much easier to stop others using your brand for similar goods or services, so many businesses register their main name or logo once it\'s settled.',
+  },
+  {
+    q: 'What is a trade mark class?',
+    a: 'Goods and services are grouped into 45 classes. Your trade mark protects you in the classes you choose, so a bakery and a software company can use similar names in different classes.',
+  },
+  {
+    q: 'How long does a UK trade mark last?',
+    a: '10 years, and you can renew it every 10 years for as long as you keep using it.',
+  },
+  {
+    q: 'What is Right Start?',
+    a: 'An option where you pay part of the fee first and get the examiner\'s report before deciding whether to continue. It costs a little more in total but lets you stop early if there\'s a problem.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'UK trade mark search', href: '/trade-mark-search/' }]}
+  schema={[articleSchema({ title, description, href: '/trade-mark-search/', updated: '2026-10-31' }), faqSchema(faq)]}
+>
+  <h1>UK trade mark search</h1>
+  <p class="lede">
+    A company name that's free on the Companies House register can still clash with someone's trade mark. Searching the
+    trade marks register takes a few minutes and can save you a forced rebrand later.
+  </p>
+
+  <h2>Why check trade marks as well as company names</h2>
+  <p>
+    The two registers are separate. Companies House checks your name against other company names, not against trade
+    marks. If your company name is too similar to another business's trade mark, the owner can complain and you may have
+    to change it. Owning a company name also doesn't give you a trade mark.
+  </p>
+
+  <h2>How to search the UK register</h2>
+  <p>The Intellectual Property Office's free search lets you look up trade marks by keyword, phrase or image, by number, or by owner.<Src id="tm-search-tool" /></p>
+  <ol>
+    <li>Open the <a href="https://www.gov.uk/search-for-trademark" rel="nofollow noopener">official trade mark search</a> and choose a keyword search.</li>
+    <li>Search the distinctive part of your name. For "Copper Bakery Ltd", search "copper bakery" and then "copper".</li>
+    <li>Look at the classes of each result. A clash matters most where the goods or services are similar to yours.</li>
+    <li>Check similar spellings and sounds, such as "Kopper", as these can conflict too.</li>
+    <li>Repeat for any logo or slogan you plan to use.</li>
+  </ol>
+  <p>Also <a href="/">check the company name</a> and the <a href="/domain-name-checker/">domains</a>, so all three line up.</p>
+
+  <h2>Registering your own trade mark</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Item</th><th scope="col">Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Apply online, one class</td><td><Fact id="tm-fee-first-class" /></td></tr>
+        <tr><td>Each additional class</td><td><Fact id="tm-fee-additional-class" /></td></tr>
+        <tr><td>Paper application, one class</td><td><Fact id="tm-fee-post" /></td></tr>
+        <tr><td>Right Start (pay in two parts)</td><td><Fact id="tm-right-start-stage1" /> to start, then the same again to continue</td></tr>
+        <tr><td>Number of classes</td><td><Fact id="tm-classes" /> (goods 1 to 34, services 35 to 45)</td></tr>
+        <tr><td>Examination report</td><td><Fact id="tm-exam-report" /></td></tr>
+        <tr><td>Opposition period after publication</td><td><Fact id="tm-opposition-period" /></td></tr>
+        <tr><td>Usual time to registration</td><td><Fact id="tm-time-to-register" /></td></tr>
+        <tr><td>Protection lasts</td><td><Fact id="tm-duration" />, renewable</td></tr>
+        <tr><td>Renewal, first class</td><td><Fact id="tm-renewal-fee" /></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">Trade mark fees changed on 1 April 2026; the figures above are the current ones.</p>
+
+  <h2>Choosing classes</h2>
+  <p>
+    Pick the classes for what you actually sell or plan to sell soon. Each extra class costs more, and registering
+    classes you don't use invites challenges. Class 35 (business services) and class 41 (education and entertainment) are
+    common for service businesses. The IPO's classification guidance lists what each class covers.
+  </p>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/', '/domain-name-checker/', '/business-name-generator/', '/company-name-rules/']} />
+
+  <GuideSources
+    factIds={[
+      'tm-search-tool', 'tm-fee-first-class', 'tm-fee-additional-class', 'tm-fee-post', 'tm-right-start-stage1',
+      'tm-classes', 'tm-exam-report', 'tm-opposition-period', 'tm-time-to-register', 'tm-duration', 'tm-renewal-fee',
+    ]}
+    extra={[{ title: 'Set up a private limited company: Choose a company name - GOV.UK', url: 'https://www.gov.uk/limited-company-formation/choose-company-name' }]}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>

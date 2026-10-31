@@ -1,0 +1,115 @@
+---
+import Base from '../../layouts/Base.astro';
+import Faq from '../../components/Faq.astro';
+import Fact from '../../components/Fact.astro';
+import GuideSources from '../../components/GuideSources.astro';
+import RelatedPages from '../../components/RelatedPages.astro';
+import Src from '../../components/Src.astro';
+import ToolForm from '../../components/ToolForm.astro';
+import { faqSchema, toolSchema } from '../../lib/schema';
+
+const title = 'UK VAT number checker: check the format and check digits';
+const description =
+  "Free UK VAT number checker. Instantly see whether a VAT number is in a valid UK format with correct check digits, then confirm who it's registered to with HMRC.";
+
+const faq = [
+  {
+    q: 'What does a UK VAT number look like?',
+    a: 'Usually 9 digits, often written with "GB" in front and spaced as GB 123 4567 89. Branch traders have 12 digits, and government departments and health authorities have short codes such as GBGD001.',
+  },
+  {
+    q: 'Does a valid format mean the business is VAT registered?',
+    a: 'No. It only means the number could exist. To see whether it\'s registered, and to whom, use HMRC\'s Check a UK VAT number service.',
+  },
+  {
+    q: 'When should I check a VAT number?',
+    a: 'When a new supplier sends a VAT invoice, especially before you pay a large amount or reclaim the VAT. A number that fails the check digits is a warning sign of a typing error or a false invoice.',
+  },
+  {
+    q: 'What is an XI VAT number?',
+    a: 'Businesses in Northern Ireland that move goods to or from the EU use XI instead of GB in front of their normal VAT number.',
+  },
+  {
+    q: 'Can I check an EU VAT number here?',
+    a: 'No. EU VAT numbers are checked with the European Commission\'s VIES service. VIES stopped checking GB numbers on 1 January 2021.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  breadcrumbs={[{ name: 'VAT number checker', href: '/vat-number-checker/' }]}
+  schema={[toolSchema({ name: 'UK VAT number checker', description, href: '/vat-number-checker/' }), faqSchema(faq)]}
+>
+  <h1>UK VAT number checker</h1>
+  <p class="lede">
+    Check that a UK VAT number is in a valid format and that its check digits add up, which catches most typing mistakes
+    and invented numbers. Then confirm who it's registered to with HMRC.
+  </p>
+
+  <ToolForm action="/vat-number-checker/results/" name="vat" label="UK VAT number" button="Check" placeholder="e.g. GB 123 4567 89" maxlength={20} />
+
+  <h2>UK VAT number formats</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Format</th><th scope="col">Who uses it</th></tr></thead>
+      <tbody>
+        <tr><td><code>GB 999 9999 99</code></td><td>Most VAT-registered businesses (9 digits)</td></tr>
+        <tr><td><code>GB 999 9999 99 999</code></td><td>Branch traders: the 9-digit number plus a 3-digit branch</td></tr>
+        <tr><td><code>GBGD999</code></td><td>Government departments</td></tr>
+        <tr><td><code>GBHA999</code></td><td>Health authorities</td></tr>
+        <tr><td><code>XI 999 9999 99</code></td><td>Northern Ireland businesses moving goods to or from the EU</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">
+    Formats from the European Commission's table<Src id="uk-vat-formats-vies" /> and HMRC's guidance on the XI prefix<Src id="uk-vat-xi-prefix" />.
+    Standard numbers have <Fact id="uk-vat-standard-length" /> digits.
+  </p>
+
+  <h2>How the check digits work</h2>
+  <p>
+    The last two digits of a 9-digit VAT number are calculated from the first seven using a standard formula<Src id="uk-vat-check-digits-official" />,
+    a "modulus 97" check.<Src id="uk-vat-modulus-97" /> We use the same formula as HMRC's own software<Src id="uk-vat-checksum-hmrc-code" />:
+  </p>
+  <ol>
+    <li>Multiply the first seven digits by 8, 7, 6, 5, 4, 3 and 2, and add them up.</li>
+    <li>Add the last two digits, read as one number.</li>
+    <li>The number is valid if the total divides exactly by 97, or does once 55 is added.</li>
+  </ol>
+  <p>
+    Passing this check only means the number is in the right format.<Src id="uk-vat-format-only" /> It doesn't prove the
+    number is registered or belongs to the business in front of you.
+  </p>
+
+  <h2>Confirm a VAT number with HMRC</h2>
+  <p>
+    HMRC's free <a href="https://www.gov.uk/check-uk-vat-number" rel="nofollow noopener">Check a UK VAT number</a> service
+    shows the name and address of the business a number is registered to.<Src id="hmrc-check-vat-service-url" /> Compare
+    them with the invoice before you pay or reclaim VAT. For EU numbers, use the European Commission's
+    <a href="https://ec.europa.eu/taxation_customs/vies/#/vat-validation" rel="nofollow noopener">VIES</a> service<Src id="vies-web-url" />,
+    which has not checked GB numbers since <Fact id="vies-no-gb" />.
+  </p>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/company-search/', '/', '/confirmation-statement/', '/register-a-limited-company/']} />
+
+  <GuideSources
+    factIds={[
+      'uk-vat-formats-vies', 'uk-vat-xi-prefix', 'uk-vat-standard-length', 'uk-vat-check-digits-official',
+      'uk-vat-modulus-97', 'uk-vat-checksum-hmrc-code', 'uk-vat-format-only', 'hmrc-check-vat-service-url', 'vies-web-url',
+      'vies-no-gb',
+    ]}
+  />
+</Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>
