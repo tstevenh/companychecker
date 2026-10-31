@@ -37,7 +37,12 @@ jobs:
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           # About 3 GB of memory is needed for 5+ million companies.
           NODE_OPTIONS: --max-old-space-size=6144
-        run: node scripts/import/build-index.ts --latest --upload --skip-if-imported --summary data/last-import.json
+        run: |
+          if [ -z "$R2_BUCKET" ]; then
+            echo "::notice::R2 secrets are not set yet; skipping the build."
+            exit 0
+          fi
+          node scripts/import/build-index.ts --latest --upload --skip-if-imported --summary data/last-import.json
 
       # Committing the summary records each build and counts as repository
       # activity, which stops GitHub disabling this scheduled workflow after
