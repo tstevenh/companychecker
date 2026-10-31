@@ -1,0 +1,29 @@
+import type { CollectionEntry } from 'astro:content';
+
+type Fact = CollectionEntry<'facts'>['data'];
+
+const gbp = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+const longDate = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+export function formatFactValue(fact: Fact): string {
+  if (fact.unit === 'GBP' && typeof fact.value === 'number') {
+    return fact.value === 0 ? 'Free' : gbp.format(fact.value).replace('.00', '');
+  }
+  if (fact.unit === 'date' && typeof fact.value === 'string') {
+    return longDate.format(new Date(fact.value));
+  }
+  if (fact.unit === 'characters') return `${fact.value} characters`;
+  return String(fact.value);
+}
+
+export function formatDate(date: Date): string {
+  return longDate.format(date);
+}
+
+export const CATEGORY_LABELS: Record<Fact['category'], string> = {
+  'companies-house-fees': 'Companies House fees',
+  'identity-verification': 'Identity verification',
+  'company-name-rules': 'Company name rules',
+  'companies-house-api': 'Companies House API',
+  'registration-providers': 'Registration providers',
+};

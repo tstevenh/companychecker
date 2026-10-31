@@ -1,0 +1,139 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="canonical" href={canonical} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Company Name Checker" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Company Name Checker</a>
+      <nav aria-label="Main">
+        <a href="/about/">About</a>
+        <a href="/sources/">Sources</a>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Independent service. Not affiliated with Companies House or the UK government. Only Companies House
+        can accept a company name when you file.
+      </p>
+      <nav aria-label="Footer">
+        <a href="/about/">About</a>
+        <a href="/sources/">Sources</a>
+        <a href="/data-updates/">Data updates</a>
+        <a href="/disclosure/">Affiliate disclosure</a>
+      </nav>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #ffffff;
+    --text: #1b1f24;
+    --muted: #5b6470;
+    --line: #e3e6ea;
+    --accent: #0b5cad;
+    --max: 46rem;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111418;
+      --text: #e8eaed;
+      --muted: #a2a9b3;
+      --line: #2a2f36;
+      --accent: #6aa8ff;
+    }
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 1rem/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  a {
+    color: var(--accent);
+  }
+  main,
+  .site-header,
+  .site-footer {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .site-header nav,
+  .site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .brand {
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+  }
+  main {
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+  }
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.5rem 0.5rem 0.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .muted {
+    color: var(--muted);
+  }
+</style>

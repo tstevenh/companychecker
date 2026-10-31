@@ -1,0 +1,25 @@
+{
+  "name": "companynamechecker",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest run",
+    "index:latest": "node --env-file-if-exists=.env scripts/import/build-index.ts --latest --upload"
+  },
+  "dependencies": {
+    "astro": "^7.4.4"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1161.0",
+    "@types/node": "^26.6.6",
+    "csv-parse": "^7.0.3",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,198 @@
+[
+  {
+    "id": "ch-fee-incorporation-online",
+    "category": "companies-house-fees",
+    "label": "Incorporate a private limited company (online)",
+    "value": 100,
+    "unit": "GBP",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-fee-incorporation-software",
+    "category": "companies-house-fees",
+    "label": "Incorporate a private limited company (software filing)",
+    "value": 100,
+    "unit": "GBP",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-fee-incorporation-paper",
+    "category": "companies-house-fees",
+    "label": "Incorporate a private limited company (paper)",
+    "value": 124,
+    "unit": "GBP",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-fee-confirmation-statement-online",
+    "category": "companies-house-fees",
+    "label": "Confirmation statement (online or software)",
+    "value": 50,
+    "unit": "GBP",
+    "notes": "Fee applies to the first statement filed in each 12-month payment period.",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-fee-confirmation-statement-paper",
+    "category": "companies-house-fees",
+    "label": "Confirmation statement (paper)",
+    "value": 110,
+    "unit": "GBP",
+    "notes": "Fee applies to the first statement filed in each 12-month payment period.",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-fee-change-of-name-online",
+    "category": "companies-house-fees",
+    "label": "Change of company name (online or software)",
+    "value": 20,
+    "unit": "GBP",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-fee-change-of-name-paper",
+    "category": "companies-house-fees",
+    "label": "Change of company name (paper)",
+    "value": 30,
+    "unit": "GBP",
+    "source_url": "https://www.gov.uk/government/publications/companies-house-fees/companies-house-fees",
+    "source_title": "Companies House fees (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-voluntary-start",
+    "category": "identity-verification",
+    "label": "Voluntary identity verification opened",
+    "value": "2025-04-08",
+    "unit": "date",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-mandatory-start",
+    "category": "identity-verification",
+    "label": "Identity verification became a legal requirement",
+    "value": "2025-11-18",
+    "unit": "date",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-existing-directors-deadline",
+    "category": "identity-verification",
+    "label": "When existing directors provide their personal code",
+    "value": "With the company's next confirmation statement",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-new-directors-deadline",
+    "category": "identity-verification",
+    "label": "When new directors provide their personal code",
+    "value": "With the appointment filing, or when incorporating a company",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-psc-deadline",
+    "category": "identity-verification",
+    "label": "When persons with significant control provide their personal code",
+    "value": "Within a 14-day period (start date depends on when they were registered)",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-route-one-login-cost",
+    "category": "identity-verification",
+    "label": "Cost of verifying through GOV.UK One Login",
+    "value": 0,
+    "unit": "GBP",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "idv-route-acsp",
+    "category": "identity-verification",
+    "label": "Verifying through an Authorised Corporate Service Provider (ACSP)",
+    "value": "ACSPs may charge a fee; they can be based in any country",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/guidance/verifying-your-identity-for-companies-house",
+    "source_title": "Verifying your identity for Companies House (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "name-max-length",
+    "category": "company-name-rules",
+    "label": "Maximum length of a company name",
+    "value": 160,
+    "unit": "characters",
+    "notes": "Blank spaces between characters count towards the limit.",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/17/regulation/2",
+    "source_title": "The Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015, regulation 2",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "name-same-as-compared-length",
+    "category": "company-name-rules",
+    "label": "Characters compared in the 'same as' test",
+    "value": 60,
+    "unit": "characters",
+    "notes": "Only the first 60 permitted characters (spaces counted) are compared, after the earlier steps of Schedule 3 are applied.",
+    "source_url": "https://www.legislation.gov.uk/uksi/2015/17/schedule/3",
+    "source_title": "The Company, Limited Liability Partnership and Business (Names and Trading Disclosures) Regulations 2015, Schedule 3",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "ch-api-rate-limit",
+    "category": "companies-house-api",
+    "label": "Companies House Public Data API rate limit",
+    "value": "600 requests per 5 minutes",
+    "unit": "text",
+    "source_url": "https://developer-specs.company-information.service.gov.uk/guides/rateLimiting",
+    "source_title": "Companies House developer guides: rate limiting",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "provider-tide-registration",
+    "category": "registration-providers",
+    "label": "Tide company registration",
+    "value": 14.99,
+    "unit": "GBP",
+    "notes": "One-off fee; a free Tide business account is included.",
+    "source_url": "https://www.tide.co/company-registration/",
+    "source_title": "Tide: company registration",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "provider-anna-registration",
+    "category": "registration-providers",
+    "label": "ANNA company registration",
+    "value": 0,
+    "unit": "GBP",
+    "notes": "Free only with ANNA's paid Enhanced or Total Support plans. ANNA is an e-money institution, not a bank.",
+    "source_url": "https://anna.money/register-a-company/london/",
+    "source_title": "ANNA: register a company",
+    "checked_on": "2026-10-31"
+  }
+]

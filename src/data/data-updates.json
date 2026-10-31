@@ -1,0 +1,13 @@
+[
+  {
+    "id": "2026-10-31-initial",
+    "date": "2026-10-31",
+    "title": "First version of the fact dataset",
+    "changes": [
+      "Added Companies House fees for incorporation, confirmation statements and change of name.",
+      "Added identity verification dates and routes.",
+      "Added company name length rules from the 2015 Names Regulations.",
+      "Added published registration prices for Tide and ANNA."
+    ]
+  }
+]

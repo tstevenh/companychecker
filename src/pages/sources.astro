@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { CATEGORY_LABELS, formatDate, formatFactValue } from '../lib/facts';
+
+const facts = await getCollection('facts');
+const byCategory = Object.entries(CATEGORY_LABELS)
+  .map(([category, label]) => ({
+    label,
+    facts: facts
+      .filter((fact) => fact.data.category === category)
+      .sort((a, b) => a.data.label.localeCompare(b.data.label)),
+  }))
+  .filter((group) => group.facts.length > 0);
+---
+
+<Base
+  title="Sources | Company Name Checker"
+  description="Every fee, rule, date and price used on Company Name Checker, with its official source and the date it was last checked."
+>
+  <h1>Sources</h1>
+  <p>
+    Every fee, rule, date and price on this site comes from the list below. Each one links to the page it was
+    read from and shows when it was last checked. Changes are logged on <a href="/data-updates/">data updates</a>.
+  </p>
+
+  {
+    byCategory.map((group) => (
+      <section>
+        <h2>{group.label}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Fact</th>
+              <th scope="col">Value</th>
+              <th scope="col">Source</th>
+              <th scope="col">Checked</th>
+            </tr>
+          </thead>
+          <tbody>
+            {group.facts.map(({ data }) => (
+              <tr id={data.id}>
+                <td>
+                  {data.label}
+                  {data.notes && <div class="muted">{data.notes}</div>}
+                </td>
+                <td>{formatFactValue(data)}</td>
+                <td>
+                  <a href={data.source_url} rel="nofollow noopener">
+                    {data.source_title}
+                  </a>
+                </td>
+                <td>{formatDate(data.checked_on)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    ))
+  }
+</Base>

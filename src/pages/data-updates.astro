@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { formatDate } from '../lib/facts';
+
+const updates = (await getCollection('dataUpdates')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<Base
+  title="Data updates | Company Name Checker"
+  description="A public log of changes to the fees, rules, dates and prices used on Company Name Checker."
+>
+  <h1>Data updates</h1>
+  <p>A public record of changes to the facts used across this site. The current values are on <a href="/sources/">sources</a>.</p>
+
+  {
+    updates.map(({ data }) => (
+      <section>
+        <h2>
+          <time datetime={data.date.toISOString().slice(0, 10)}>{formatDate(data.date)}</time>: {data.title}
+        </h2>
+        <ul>
+          {data.changes.map((change) => (
+            <li>{change}</li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</Base>
