@@ -4,7 +4,7 @@ export const SITE = {
   name: 'Company Name Checker',
   url: 'https://companynamechecker.co.uk',
   // Legal name of the person or business running the site.
-  operator: '',
+  operator: 'Tim',
   // Address for corrections, privacy requests and general contact.
-  contactEmail: '',
+  contactEmail: 'tim@companynamechecker.co.uk',
 };
