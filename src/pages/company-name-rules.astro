@@ -1,0 +1,122 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import GuideSources from '../components/GuideSources.astro';
+import NameCheckForm from '../components/NameCheckForm.astro';
+import { normalizeCompanyName } from '../lib/company-name/normalize';
+
+// Worked examples, computed with the same code the checker uses.
+const examples = [
+  ['Acme Widgets Ltd', 'Acme Widgets Limited'],
+  ['The Bakery Ltd', 'Bakery Ltd'],
+  ['Smith & Sons Ltd', 'Smith and Son Ltd'],
+  ['Back 2 Basics Ltd', 'Back To Basics Ltd'],
+  ['Acme (UK) Ltd', 'Acme.com Ltd'],
+  ['Café Nero Ltd', 'Cafe Nero Ltd'],
+  ['A.B.C. Services Ltd', 'ABC Service Ltd'],
+  ['Acme Trading Ltd', 'Acme Ltd'],
+].map(([a, b]) => ({ a, b, keyA: normalizeCompanyName(a), keyB: normalizeCompanyName(b) }));
+---
+
+<Base
+  title="UK company name rules: the Companies House 'same as' test explained"
+  description="How Companies House decides whether two company names are the 'same as' each other, with the rules from the 2015 Names Regulations and worked examples."
+>
+  <h1>UK company name rules: the "same as" test</h1>
+  <p>
+    You can't register a company with a name that is the "same as" one already on the Companies House register. "Same"
+    doesn't mean identical. Before comparing, Companies House strips away the parts of a name that don't make it
+    different. Those rules are set out in Schedule 3 of the 2015 Names Regulations.
+  </p>
+
+  <h2>What gets ignored, in order</h2>
+  <ol>
+    <li><strong>Accents.</strong> "Café" counts as "Cafe", and "Æ" as "AE".</li>
+    <li><strong>The company type at the end.</strong> "Limited", "Ltd", "PLC", "LLP", "CIC" and their Welsh versions, with or without full stops.</li>
+    <li><strong>Equivalent words and symbols</strong> (as separate words): "&amp;" and "and", "+" and "plus", "2", "two", "to" and "too", "4", "four" and "for", other numbers and their words, "£" and "pound", "%" and "per cent", "@" and "at".</li>
+    <li><strong>Endings like "Company", "Co", "UK", ".com", "GB", "Wales"</strong> at the end of the name, alone or combined, including in brackets, as in "(UK)".</li>
+    <li><strong>Punctuation</strong> such as full stops, commas, hyphens, apostrophes, brackets and quotes, and the symbols *, = and #.</li>
+    <li><strong>A final "S".</strong></li>
+    <li><strong>Everything after the first <Fact id="name-same-as-compared-length" /></strong>, counting spaces.</li>
+    <li><strong>"The", "www" or "@" at the start.</strong></li>
+    <li><strong>Spaces.</strong></li>
+  </ol>
+  <p>If what's left is identical for two names, they count as the same.</p>
+
+  <h2>Examples</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Compared as</th>
+          <th scope="col">Name</th>
+          <th scope="col">Compared as</th>
+          <th scope="col">Same?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          examples.map((e) => (
+            <tr>
+              <td>{e.a}</td>
+              <td>
+                <code>{e.keyA}</code>
+              </td>
+              <td>{e.b}</td>
+              <td>
+                <code>{e.keyB}</code>
+              </td>
+              <td>{e.keyA === e.keyB ? 'Yes' : 'No'}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Other rules that can still block a name</h2>
+  <ul>
+    <li>
+      <strong>"Too like" names.</strong> Even if a name isn't the same, an existing company can object if yours is too
+      similar to theirs. Our checker lists similar registered names so you can judge.
+    </li>
+    <li>
+      <strong>Sensitive words.</strong> Some words, such as ones suggesting a connection with government or a regulated
+      profession, need permission before you can use them. Companies House publishes the list in its
+      <a href="https://www.gov.uk/government/publications/incorporation-and-names" rel="nofollow noopener">incorporation and names guidance</a>.
+    </li>
+    <li><strong>Length.</strong> A company name can be at most <Fact id="name-max-length" />.</li>
+    <li>
+      <strong>Trade marks.</strong> Companies House doesn't check trade marks. Search the
+      <a href="https://www.gov.uk/search-for-trademark" rel="nofollow noopener">UK trade marks register</a> separately.
+    </li>
+  </ul>
+  <p>
+    There is one exception to the "same as" rule: a company in the same group can register a same-as name with the
+    existing company's consent.
+  </p>
+
+  <h2>Check your name</h2>
+  <NameCheckForm />
+
+  <GuideSources
+    factIds={['name-same-as-compared-length', 'name-max-length']}
+    extra={[
+      { title: 'Incorporation and names (Companies House guidance)', url: 'https://www.gov.uk/government/publications/incorporation-and-names' },
+    ]}
+  />
+</Base>
+
+<style>
+  .table-wrap {
+    overflow-x: auto;
+  }
+  code {
+    font-size: 0.9em;
+    word-break: break-all;
+  }
+  li {
+    margin: 0.35rem 0;
+  }
+</style>

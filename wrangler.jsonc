@@ -1,0 +1,24 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"compatibility_date": "2026-10-23",
+	"compatibility_flags": ["global_fetch_strictly_public"],
+	"name": "companynamechecker",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS"
+	},
+	// The monthly company index built by scripts/import/build-index.ts.
+	// Create a bucket with this name in R2 before deploying.
+	"r2_buckets": [
+		{
+			"binding": "COMPANY_INDEX",
+			"bucket_name": "companynamechecker-index"
+		}
+	],
+	// COMPANIES_HOUSE_API_KEY is a secret: `npx wrangler secret put COMPANIES_HOUSE_API_KEY`
+	// in production, and a line in .dev.vars for local development.
+	"observability": {
+		"enabled": true
+	}
+}

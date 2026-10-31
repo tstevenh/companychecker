@@ -11,10 +11,15 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
-    "index:latest": "node --env-file-if-exists=.env scripts/import/build-index.ts --latest --upload"
+    "index:latest": "node --env-file-if-exists=.env scripts/import/build-index.ts --latest --upload",
+    "generate-types": "wrangler types",
+    "deploy": "astro build && wrangler deploy"
   },
   "dependencies": {
-    "astro": "^7.4.4"
+    "@astrojs/cloudflare": "^14.4.3",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.4.4",
+    "wrangler": "^4.156.0"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

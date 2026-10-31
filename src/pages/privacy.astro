@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactLine from '../components/ContactLine.astro';
+import { SITE } from '../data/site';
+---
+
+<Base title="Privacy policy | Company Name Checker" description="What Company Name Checker does with the information you give it.">
+  <h1>Privacy policy</h1>
+  <p class="muted">Last updated 31 October 2026.</p>
+
+  <h2>Who we are</h2>
+  <p>
+    {SITE.name} is run by
+    {SITE.operator ? SITE.operator : <strong class="placeholder">[operator name to be added before launch]</strong>}.
+    Contact: <ContactLine />.
+  </p>
+
+  <h2>What we collect</h2>
+  <ul>
+    <li>
+      <strong>Names you check.</strong> When you check a company name, the name is sent to our server to look it up.
+      If our data doesn't find a match, the name may also be sent to the Companies House API to check for companies
+      registered recently. We don't link names you check to you.
+    </li>
+    <li>
+      <strong>Technical logs.</strong> Our hosting provider, Cloudflare, processes the requests your browser makes
+      (including IP address and the page requested) to run and protect the site. Logs are kept for a short period to
+      fix errors.
+    </li>
+  </ul>
+  <p>We don't set cookies and we don't run advertising trackers. If that changes, we'll update this page first.</p>
+
+  <h2>Company information we show</h2>
+  <p>
+    Company names, numbers, statuses and filing dates come from Companies House's public register. We don't show the
+    names or addresses of directors.
+  </p>
+
+  <h2>Links to other sites</h2>
+  <p>
+    Some links go to providers such as registration services and business accounts. Once you leave our site, their
+    privacy policies apply. See our <a href="/disclosure/">affiliate disclosure</a>.
+  </p>
+
+  <h2>Your rights</h2>
+  <p>
+    Under UK data protection law you can ask what personal data we hold about you, ask us to correct or delete it, and
+    complain to the Information Commissioner's Office (<a href="https://ico.org.uk/" rel="nofollow noopener">ico.org.uk</a>).
+    To make a request, contact <ContactLine />.
+  </p>
+</Base>
+
+<style>
+  .placeholder {
+    color: #cf222e;
+  }
+</style>

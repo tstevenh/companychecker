@@ -1,0 +1,23 @@
+---
+// Renders one fact's value, linked to its entry on /sources/. Fails the build
+// if the id doesn't exist, so pages can't quote a fact that has no source.
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+interface Props {
+  id: string;
+}
+
+const entry = await getEntry('facts', Astro.props.id);
+if (!entry) throw new Error(`Unknown fact "${Astro.props.id}"`);
+---
+
+<a class="fact" href={`/sources/#${entry.data.id}`} title={`Source: ${entry.data.source_title}`}>{formatFactValue(entry.data)}</a>
+
+<style>
+  .fact {
+    color: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: 0.15em;
+  }
+</style>

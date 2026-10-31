@@ -13,6 +13,7 @@ export function formatFactValue(fact: Fact): string {
     return longDate.format(new Date(fact.value));
   }
   if (fact.unit === 'characters') return `${fact.value} characters`;
+  if (fact.unit === 'years') return `${fact.value} years`;
   return String(fact.value);
 }
 
@@ -26,4 +27,5 @@ export const CATEGORY_LABELS: Record<Fact['category'], string> = {
   'company-name-rules': 'Company name rules',
   'companies-house-api': 'Companies House API',
   'registration-providers': 'Registration providers',
+  'company-formation': 'Setting up a company',
 };

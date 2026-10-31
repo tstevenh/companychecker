@@ -194,5 +194,97 @@
     "source_url": "https://anna.money/register-a-company/london/",
     "source_title": "ANNA: register a company",
     "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-min-directors",
+    "category": "company-formation",
+    "label": "Minimum number of directors",
+    "value": 1,
+    "unit": "count",
+    "source_url": "https://www.gov.uk/limited-company-formation/appoint-directors-and-company-secretaries",
+    "source_title": "Appoint directors and a company secretary (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-director-min-age",
+    "category": "company-formation",
+    "label": "Minimum age of a director",
+    "value": 16,
+    "unit": "years",
+    "source_url": "https://www.gov.uk/limited-company-formation/appoint-directors-and-company-secretaries",
+    "source_title": "Appoint directors and a company secretary (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-director-residence",
+    "category": "company-formation",
+    "label": "Where directors must live",
+    "value": "Directors do not have to live in the UK, but the company needs a UK registered office address",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/limited-company-formation/appoint-directors-and-company-secretaries",
+    "source_title": "Appoint directors and a company secretary (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-company-secretary",
+    "category": "company-formation",
+    "label": "Company secretary",
+    "value": "Not required for a private limited company",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/limited-company-formation/appoint-directors-and-company-secretaries",
+    "source_title": "Appoint directors and a company secretary (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-min-shareholders",
+    "category": "company-formation",
+    "label": "Minimum number of shareholders",
+    "value": 1,
+    "unit": "count",
+    "notes": "The shareholder can also be a director.",
+    "source_url": "https://www.gov.uk/limited-company-formation",
+    "source_title": "Set up a limited company: step by step (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-registered-office",
+    "category": "company-formation",
+    "label": "Registered office address",
+    "value": "A physical UK address in the same country the company is registered in (England and Wales, Scotland, or Northern Ireland)",
+    "unit": "text",
+    "notes": "It appears on the public register. Royal Mail PO Boxes and similar services can no longer be used.",
+    "source_url": "https://www.gov.uk/limited-company-formation/company-address",
+    "source_title": "Rules for registered office addresses and email addresses (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-registered-email",
+    "category": "company-formation",
+    "label": "Registered email address",
+    "value": "Required; it is not published on the public register",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/limited-company-formation/company-address",
+    "source_title": "Rules for registered office addresses and email addresses (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-time-online",
+    "category": "company-formation",
+    "label": "How long online registration takes",
+    "value": "usually within 24 hours",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/limited-company-formation/register-your-company",
+    "source_title": "Register your company (GOV.UK)",
+    "checked_on": "2026-10-31"
+  },
+  {
+    "id": "formation-time-post",
+    "category": "company-formation",
+    "label": "How long postal registration takes",
+    "value": "8 to 10 days",
+    "unit": "text",
+    "source_url": "https://www.gov.uk/limited-company-formation/register-your-company",
+    "source_title": "Register your company (GOV.UK)",
+    "checked_on": "2026-10-31"
   }
 ]

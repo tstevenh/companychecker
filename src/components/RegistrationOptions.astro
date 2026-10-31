@@ -1,0 +1,81 @@
+---
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+// Prices come from the fact database, so they always carry a source.
+const companiesHouse = (await getEntry('facts', 'ch-fee-incorporation-online'))!.data;
+const tide = (await getEntry('facts', 'provider-tide-registration'))!.data;
+const anna = (await getEntry('facts', 'provider-anna-registration'))!.data;
+
+const options = [
+  {
+    name: 'Companies House (direct)',
+    price: formatFactValue(companiesHouse),
+    includes: 'Registration only. You set up a business account separately.',
+    href: 'https://www.gov.uk/limited-company-formation/register-your-company',
+    factId: companiesHouse.id,
+  },
+  {
+    name: 'Tide',
+    price: formatFactValue(tide),
+    includes: tide.notes ?? '',
+    href: 'https://www.tide.co/company-registration/',
+    factId: tide.id,
+  },
+  {
+    name: 'ANNA',
+    price: `${formatFactValue(anna)}*`,
+    includes: anna.notes ?? '',
+    href: 'https://anna.money/register-a-company/london/',
+    factId: anna.id,
+  },
+];
+---
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Route</th>
+        <th scope="col">Price</th>
+        <th scope="col">What you get</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        options.map((option) => (
+          <tr>
+            <td>
+              <a href={option.href} rel="nofollow noopener" target="_blank">
+                {option.name}
+              </a>
+            </td>
+            <td>
+              <a class="price" href={`/sources/#${option.factId}`} title="See source">
+                {option.price}
+              </a>
+            </td>
+            <td>{option.includes}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+<p class="muted small">
+  * Conditions apply; see the note. Prices are from each provider's own page; follow a price to see its source and
+  check date.
+</p>
+
+<style>
+  .table-wrap {
+    overflow-x: auto;
+  }
+  .price {
+    color: inherit;
+    text-decoration: underline dotted;
+  }
+  .small {
+    font-size: 0.85rem;
+  }
+</style>

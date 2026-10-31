@@ -1,0 +1,106 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import GuideSources from '../components/GuideSources.astro';
+---
+
+<Base
+  title="Companies House identity verification: who, when and how"
+  description="Companies House identity verification explained: who has to verify, the deadlines for directors and PSCs, verifying free with GOV.UK One Login or through an ACSP, and your personal code."
+>
+  <h1>Companies House identity verification</h1>
+  <p>
+    Since <Fact id="idv-mandatory-start" />, company directors and people with significant control (PSCs) have had to
+    verify their identity with Companies House. Most people only do it once.
+  </p>
+
+  <h2>Who has to verify</h2>
+  <ul>
+    <li>Company directors, and equivalents such as LLP members</li>
+    <li>People with significant control (PSCs)</li>
+    <li>Directors of overseas companies registered in the UK</li>
+  </ul>
+
+  <h2>When you have to do it</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Who</th>
+          <th scope="col">Deadline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Existing directors</td>
+          <td><Fact id="idv-existing-directors-deadline" /></td>
+        </tr>
+        <tr>
+          <td>New directors</td>
+          <td><Fact id="idv-new-directors-deadline" /></td>
+        </tr>
+        <tr>
+          <td>People with significant control</td>
+          <td><Fact id="idv-psc-deadline" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Two ways to verify</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Route</th>
+          <th scope="col">Cost</th>
+          <th scope="col">Good for</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GOV.UK One Login</td>
+          <td><Fact id="idv-route-one-login-cost" /></td>
+          <td>Most people. Verify with the app, online, or by entering photo ID details and finishing at a participating Post Office.</td>
+        </tr>
+        <tr>
+          <td>An Authorised Corporate Service Provider (ACSP)</td>
+          <td><Fact id="idv-route-acsp" /></td>
+          <td>People who can't use One Login or would rather use an agent. ACSPs can be based in any country.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Don't post or email identity documents to Companies House.</p>
+
+  <h2>Your personal code</h2>
+  <p>
+    After you verify, you get a Companies House personal code. It belongs to you, not to a company. You give it when you
+    file a confirmation statement, when you become a director, and when you become a PSC. Keep it as secure as your tax
+    reference.
+  </p>
+
+  <h2>Starting a new company?</h2>
+  <p>
+    New directors give their personal code when the company is registered, so verify first. See
+    <a href="/register-a-limited-company/">how to register a limited company</a>.
+  </p>
+
+  <GuideSources
+    factIds={[
+      'idv-mandatory-start',
+      'idv-voluntary-start',
+      'idv-existing-directors-deadline',
+      'idv-new-directors-deadline',
+      'idv-psc-deadline',
+      'idv-route-one-login-cost',
+      'idv-route-acsp',
+    ]}
+  />
+</Base>
+
+<style>
+  .table-wrap {
+    overflow-x: auto;
+  }
+</style>

@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactLine from '../components/ContactLine.astro';
+import { SITE } from '../data/site';
+---
+
+<Base title="Terms of use | Company Name Checker" description="The terms for using Company Name Checker.">
+  <h1>Terms of use</h1>
+  <p class="muted">Last updated 31 October 2026.</p>
+
+  <h2>What this site is</h2>
+  <p>
+    {SITE.name} is a free information service. It is independent and not affiliated with Companies House or any part
+    of the UK government.
+  </p>
+
+  <h2>Name check results are a guide</h2>
+  <p>
+    The name checker applies the published Companies House "same as" rules to Companies House data. Our data is updated
+    monthly and checked against Companies House live where possible, but it can be out of date, and Companies House can
+    also object to names that are "too like" another or that use sensitive words. Only Companies House can accept a
+    name, and it does so when you file. Don't buy branding, domains or stationery based only on our result.
+  </p>
+
+  <h2>Not professional advice</h2>
+  <p>
+    Our guides explain official rules in plain English. They are not legal, tax or financial advice. Check the linked
+    official sources, or speak to a professional, before making decisions.
+  </p>
+
+  <h2>Fair use</h2>
+  <p>
+    Please don't use automated tools to send large numbers of name checks. We may limit or block traffic that affects
+    the service for others.
+  </p>
+
+  <h2>Links and affiliates</h2>
+  <p>
+    We link to other sites, including providers that may pay us a commission. We're not responsible for their content
+    or services. See our <a href="/disclosure/">affiliate disclosure</a>.
+  </p>
+
+  <h2>Contact</h2>
+  <p>Questions or corrections: <ContactLine />.</p>
+</Base>

@@ -1,0 +1,17 @@
+---
+import { SITE } from '../data/site';
+---
+
+{
+  SITE.contactEmail ? (
+    <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+  ) : (
+    <strong class="placeholder">[contact email to be added before launch]</strong>
+  )
+}
+
+<style>
+  .placeholder {
+    color: #cf222e;
+  }
+</style>

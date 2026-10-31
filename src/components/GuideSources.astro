@@ -1,0 +1,48 @@
+---
+// "Sources" list for the end of a guide: the official pages behind the facts it
+// uses, with the most recent check date.
+import { getEntry } from 'astro:content';
+import { formatDate } from '../lib/facts';
+
+interface Props {
+  factIds: string[];
+  extra?: { title: string; url: string }[];
+}
+
+const { factIds, extra = [] } = Astro.props;
+const facts = await Promise.all(
+  factIds.map(async (id) => {
+    const entry = await getEntry('facts', id);
+    if (!entry) throw new Error(`Unknown fact "${id}"`);
+    return entry.data;
+  }),
+);
+const sources = new Map<string, string>();
+for (const fact of facts) sources.set(fact.source_url, fact.source_title);
+for (const { url, title } of extra) sources.set(url, title);
+const lastChecked = new Date(Math.max(...facts.map((f) => f.checked_on.getTime())));
+---
+
+<section class="guide-sources">
+  <h2>Sources</h2>
+  <ul>
+    {
+      [...sources].map(([url, title]) => (
+        <li>
+          <a href={url} rel="nofollow noopener">
+            {title}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="muted">Facts last checked {formatDate(lastChecked)}. See all <a href="/sources/">sources</a>.</p>
+</section>
+
+<style>
+  .guide-sources {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+  }
+</style>

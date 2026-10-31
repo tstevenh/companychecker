@@ -1,17 +1,45 @@
 ---
 import Base from '../layouts/Base.astro';
+import NameCheckForm from '../components/NameCheckForm.astro';
 ---
 
 <Base
   title="Company Name Checker: is your UK company name available?"
-  description="Check whether a UK limited company name is available, see why a name clashes under Companies House rules, and compare ways to register it."
+  description="Free UK company name checker. See if a limited company name is available, why a name clashes under the Companies House 'same as' rules, and the ways to register it."
 >
   <h1>Is your UK company name available?</h1>
-  <p>
-    The name checker is being built. It will check your name against every live UK company, explain the
-    Companies House "same as" rules, flag sensitive words, and show the ways to register.
+  <p class="lede">
+    Check a name against every live UK company. We apply the same rules Companies House uses, so "Acme UK Ltd" and
+    "The Acme Company Limited" count as the same name.
   </p>
-  <p class="muted">
-    Every fact on this site links to its official source. See <a href="/sources/">sources</a>.
-  </p>
+
+  <NameCheckForm autofocus />
+
+  <section>
+    <h2>What the checker does</h2>
+    <ul>
+      <li><strong>Finds exact clashes:</strong> names Companies House treats as the "same as" yours, after removing endings like "Ltd", punctuation, "The", a final "S" and more.</li>
+      <li><strong>Shows similar names</strong> that could still be objected to as "too like" an existing company.</li>
+      <li><strong>Compares ways to register</strong> the name once you've found one that's free.</li>
+    </ul>
+    <p class="muted">
+      Final approval of a name happens when Companies House accepts your filing. Independent service, not affiliated with
+      Companies House.
+    </p>
+  </section>
+
+  <section>
+    <h2>Guides</h2>
+    <ul>
+      <li><a href="/company-name-rules/">UK company name rules: how the "same as" test works</a></li>
+      <li><a href="/register-a-limited-company/">How to register a limited company</a></li>
+      <li><a href="/companies-house-identity-verification/">Companies House identity verification</a></li>
+    </ul>
+  </section>
 </Base>
+
+<style>
+  .lede {
+    font-size: 1.1rem;
+  }
+</style>

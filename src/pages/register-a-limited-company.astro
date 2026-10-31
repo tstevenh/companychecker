@@ -1,0 +1,82 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import GuideSources from '../components/GuideSources.astro';
+import NameCheckForm from '../components/NameCheckForm.astro';
+import RegistrationOptions from '../components/RegistrationOptions.astro';
+---
+
+<Base
+  title="How to register a limited company in the UK (step by step)"
+  description="What you need to register a private limited company with Companies House: name, registered office, directors, shareholders, identity verification, costs and how long it takes."
+>
+  <h1>How to register a limited company</h1>
+  <p>
+    Registering a private limited company with Companies House costs <Fact id="ch-fee-incorporation-online" /> online
+    and is <Fact id="formation-time-online" />. Here's what you need before you start.
+  </p>
+
+  <h2>1. Choose a name that's available</h2>
+  <p>
+    The name can't be the "same as" an existing company's, and it usually ends in "Limited" or "Ltd". See
+    <a href="/company-name-rules/">how the "same as" rules work</a>, or check a name now:
+  </p>
+  <NameCheckForm />
+
+  <h2>2. Set up a registered office address</h2>
+  <p><Fact id="formation-registered-office" />. It appears on the public register, so many people use an accountant's or a registered office service's address instead of their home.</p>
+  <p>You also need a registered email address: <Fact id="formation-registered-email" />.</p>
+
+  <h2>3. Appoint at least one director</h2>
+  <ul>
+    <li>Minimum number of directors: <Fact id="formation-min-directors" />.</li>
+    <li>Minimum age: <Fact id="formation-director-min-age" />.</li>
+    <li><Fact id="formation-director-residence" />.</li>
+    <li>Company secretary: <Fact id="formation-company-secretary" />.</li>
+  </ul>
+
+  <h2>4. Choose at least one shareholder</h2>
+  <p>You need at least <Fact id="formation-min-shareholders" /> shareholder, who can also be a director. You'll also confirm who the people with significant control are, for example anyone with more than 25% of the shares or voting rights.</p>
+
+  <h2>5. Verify your identity</h2>
+  <p>
+    Since <Fact id="idv-mandatory-start" />, identity verification has been a legal requirement. New directors provide
+    their Companies House personal code when the company is registered. Read our
+    <a href="/companies-house-identity-verification/">identity verification guide</a>.
+  </p>
+
+  <h2>6. Pick a SIC code and agree the company's rules</h2>
+  <p>
+    A SIC code describes what the company does. You'll also need a memorandum of association and articles of
+    association. Most small companies use the standard "model articles".
+  </p>
+
+  <h2>7. Register</h2>
+  <p>
+    Register online with Companies House (<Fact id="ch-fee-incorporation-online" />, <Fact id="formation-time-online" />),
+    by post (<Fact id="ch-fee-incorporation-paper" />, <Fact id="formation-time-post" />), or through a provider that
+    files for you. When it's done you get a certificate of incorporation with your company number.
+  </p>
+
+  <h2>Ways to register, compared</h2>
+  <RegistrationOptions />
+
+  <GuideSources
+    factIds={[
+      'ch-fee-incorporation-online',
+      'ch-fee-incorporation-paper',
+      'formation-time-online',
+      'formation-time-post',
+      'formation-registered-office',
+      'formation-registered-email',
+      'formation-min-directors',
+      'formation-director-min-age',
+      'formation-director-residence',
+      'formation-company-secretary',
+      'formation-min-shareholders',
+      'idv-mandatory-start',
+      'provider-tide-registration',
+      'provider-anna-registration',
+    ]}
+  />
+</Base>

@@ -6,8 +6,7 @@ Source for [companynamechecker.co.uk](https://companynamechecker.co.uk): a free,
 
 | Part | Where |
 |---|---|
-| Website pages | Cloudflare Pages (static Astro build) |
-| Name check and deadline tools | Cloudflare Workers (Phase 1) |
+| Website pages and tools | One Cloudflare Worker: static pages served as assets, plus the on-demand `/check/` page and `/api/name-check/` |
 | Every live UK company (~5.7 million) | Lookup files ("shards") in Cloudflare R2, rebuilt monthly |
 | Small app data: reminder subscribers | Cloudflare D1 (Phase 3) |
 | Monthly rebuild | GitHub Actions |
@@ -18,7 +17,12 @@ There's no database server. A name check normalises the name, fetches the one ~6
 
 | Path | What it is |
 |---|---|
-| `src/pages/`, `src/layouts/` | Astro pages and layout |
+| `src/pages/`, `src/layouts/`, `src/components/` | Astro pages, layout and components |
+| `src/pages/check.astro`, `src/pages/api/name-check.ts` | The name checker (rendered on demand in the Worker) |
+| `src/lib/name-check.ts`, `src/lib/server/runtime.ts` | Name-check logic, and its wiring to R2, the cache and the Companies House API |
+| `src/data/site.ts` | Operator name and contact email (fill in before launch) |
+| `wrangler.jsonc` | Worker config: name, R2 binding `COMPANY_INDEX` |
+| `scripts/dev/seed-local-index.ts` | Loads a locally built index into the local R2 emulator for `npm run dev` |
 | `src/data/facts.json` | Every fee, rule, date and price shown on the site. The schema in `src/content.config.ts` makes the build fail if a fact has no official source or check date |
 | `src/data/data-updates.json` | Public changelog shown on `/data-updates/` |
 | `src/lib/company-name/normalize.ts` | The Companies House "same as" rules (Schedule 3, SI 2015/17). Shared by the builder and the Worker |
@@ -43,6 +47,7 @@ There's no database server. A name check normalises the name, fetches the one ~6
 | `npm run build` | Build the static site to `dist/` |
 | `npm test` | Run the tests (no setup needed) |
 | `npm run index:latest` | Download the newest snapshot, build the index and publish it to R2 (reads `.env`) |
+| `npm run deploy` | Build and deploy the Worker to Cloudflare (`wrangler deploy`) |
 
 To build into a local folder instead of R2:
 
@@ -51,6 +56,25 @@ node scripts/import/build-index.ts --zip BasicCompanyData-2026-10-01-part7_7.zip
 ```
 
 See the comment at the top of `scripts/import/build-index.ts` for every option.
+
+## Running the name checker locally
+
+`npm run dev` runs the site in the real Workers runtime, with a local R2 emulator. To give it data:
+
+```sh
+node scripts/import/build-index.ts --zip BasicCompanyData-2026-10-01-part7_7.zip --partial --out ./index-out
+node scripts/dev/seed-local-index.ts ./index-out
+```
+
+To try the live Companies House check, add `COMPANIES_HOUSE_API_KEY=...` to a `.dev.vars` file (git-ignored).
+
+## Before launch
+
+1. Fill in `operator` and `contactEmail` in `src/data/site.ts`. The privacy, terms and about pages show red placeholders until you do.
+2. Buy the domain and add it to Cloudflare.
+3. In Cloudflare: enable R2, create the bucket `companynamechecker-index`, and create an R2 API token. Set a billing notification.
+4. Add the four `R2_*` secrets to this GitHub repo, then run the "Build company index" workflow once by hand.
+5. Run `npx wrangler secret put COMPANIES_HOUSE_API_KEY`, then `npm run deploy`, and attach the domain to the Worker (Workers > Settings > Domains & Routes).
 
 ## The company index
 

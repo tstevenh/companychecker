@@ -1,0 +1,172 @@
+---
+import Base from '../layouts/Base.astro';
+import NameCheckForm from '../components/NameCheckForm.astro';
+import RegistrationOptions from '../components/RegistrationOptions.astro';
+import { runNameCheck } from '../lib/server/runtime.ts';
+import { formatDate } from '../lib/facts';
+
+export const prerender = false;
+
+const name = Astro.url.searchParams.get('name') ?? '';
+if (!name.trim()) return Astro.redirect('/', 302);
+
+const result = await runNameCheck(name);
+
+const ERROR_MESSAGES = {
+  empty: 'Enter a company name to check.',
+  'too-long': 'Company names can be at most 160 characters.',
+  'no-letters': 'That name has no letters or numbers left once punctuation and company endings are removed.',
+};
+
+const companyUrl = (number: string) =>
+  `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(number)}`;
+
+const statusLabel = (status: string) => (status ? status.replace(/-/g, ' ') : 'status unknown');
+const snapshotDate = 'error' in result || !result.indexSnapshot ? null : formatDate(new Date(result.indexSnapshot));
+---
+
+<Base
+  title={`Is "${name}" available? | Company Name Checker`}
+  description="UK company name availability check against Companies House records, with the 'same as' rules explained."
+  noindex
+>
+  <NameCheckForm value={name} />
+
+  {
+    'error' in result ? (
+      <p class="notice">{ERROR_MESSAGES[result.error]}</p>
+    ) : (
+      <>
+        {result.verdict === 'available' && (
+          <section class="verdict verdict-ok">
+            <h1>"{result.name}" looks available</h1>
+            <p>No live UK company has a name that counts as the same under the Companies House rules.</p>
+          </section>
+        )}
+        {result.verdict === 'taken' && (
+          <section class="verdict verdict-taken">
+            <h1>"{result.name}" is already taken</h1>
+            <p>
+              {result.sameAs.length === 1 ? 'This company has' : 'These companies have'} a name Companies House treats as
+              the same as yours, so it would reject the name unless you have their consent.
+            </p>
+          </section>
+        )}
+        {result.verdict === 'unknown' && (
+          <section class="verdict">
+            <h1>We couldn't check "{result.name}" right now</h1>
+            <p>
+              Our company data is temporarily unavailable. You can search the official{' '}
+              <a href="https://find-and-update.company-information.service.gov.uk/company-name-availability">
+                Companies House name availability checker
+              </a>{' '}
+              meanwhile.
+            </p>
+          </section>
+        )}
+
+        {result.verdict !== 'unknown' && (
+          <p class="muted">
+            Companies House compares names after removing endings like "Ltd", punctuation, a final "S", "The" at the
+            start, and similar. Your name reduces to <code>{result.key}</code>.{' '}
+            <a href="/company-name-rules/">How the "same as" rules work</a>.
+          </p>
+        )}
+
+        {result.sameAs.length > 0 && (
+          <section>
+            <h2>Companies with the same name</h2>
+            <ul class="companies">
+              {result.sameAs.map((c) => (
+                <li>
+                  <a href={companyUrl(c.number)} rel="nofollow noopener">
+                    {c.name}
+                  </a>{' '}
+                  <span class="muted">
+                    {c.number} · {statusLabel(c.status)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {result.similar.length > 0 && (
+          <section>
+            <h2>Similar names already registered</h2>
+            <p class="muted">
+              Not the same under the rules, but Companies House can still object to names that are "too like" an
+              existing one.
+            </p>
+            <ul class="companies">
+              {result.similar.map((c) => (
+                <li>
+                  {c.name} <span class="muted">{c.number}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {result.verdict === 'available' && (
+          <section>
+            <h2>Ways to register this name</h2>
+            <RegistrationOptions />
+            <p>
+              Before you register, also check that nobody has a trade mark on the name (search the{' '}
+              <a href="https://www.gov.uk/search-for-trademark" rel="nofollow noopener">
+                UK trade marks register
+              </a>
+              ) and that you can get a matching domain. Read our guide to{' '}
+              <a href="/register-a-limited-company/">registering a limited company</a>.
+            </p>
+          </section>
+        )}
+
+        <p class="muted small">
+          {snapshotDate && <>Checked against Companies House data from {snapshotDate}</>}
+          {snapshotDate && result.checkedLive && <> and a live Companies House search</>}
+          {!snapshotDate && result.checkedLive && <>Checked with a live Companies House search</>}
+          {(snapshotDate || result.checkedLive) && '. '}
+          Final approval of a name happens when Companies House accepts your filing.
+        </p>
+      </>
+    )
+  }
+</Base>
+
+<style>
+  .verdict {
+    border-left: 4px solid var(--line);
+    padding: 0.25rem 0 0.25rem 1rem;
+    margin: 1.5rem 0;
+  }
+  .verdict h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.6rem;
+  }
+  .verdict-ok {
+    border-color: #1a7f37;
+  }
+  .verdict-taken {
+    border-color: #cf222e;
+  }
+  .companies {
+    padding-left: 1.2rem;
+  }
+  .companies li {
+    margin: 0.3rem 0;
+  }
+  code {
+    font-size: 0.95em;
+    background: var(--line);
+    padding: 0.05rem 0.3rem;
+    border-radius: 4px;
+  }
+  .small {
+    font-size: 0.85rem;
+  }
+  .notice {
+    font-weight: 600;
+  }
+</style>

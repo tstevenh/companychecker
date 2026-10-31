@@ -9,5 +9,14 @@
       "Added company name length rules from the 2015 Names Regulations.",
       "Added published registration prices for Tide and ANNA."
     ]
+  },
+  {
+    "id": "2026-10-31-formation",
+    "date": "2026-10-31",
+    "title": "Company formation rules added",
+    "changes": [
+      "Added director, shareholder, company secretary and registered office rules from GOV.UK.",
+      "Added registered email requirement and registration times (online and by post)."
+    ]
   }
 ]
