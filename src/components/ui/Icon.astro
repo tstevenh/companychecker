@@ -1,0 +1,22 @@
+---
+// Phosphor icons (bold weight), inlined so they inherit currentColor.
+import arrowRight from '@phosphor-icons/core/assets/bold/arrow-right-bold.svg?raw';
+import arrowUpRight from '@phosphor-icons/core/assets/bold/arrow-up-right-bold.svg?raw';
+import caretDown from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
+import check from '@phosphor-icons/core/assets/bold/check-bold.svg?raw';
+import x from '@phosphor-icons/core/assets/bold/x-bold.svg?raw';
+import warning from '@phosphor-icons/core/assets/bold/warning-bold.svg?raw';
+import arrowDown from '@phosphor-icons/core/assets/bold/arrow-down-bold.svg?raw';
+
+const ICONS = { arrowRight, arrowUpRight, caretDown, check, x, warning, arrowDown };
+
+interface Props {
+  name: keyof typeof ICONS;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+const svg = ICONS[name].replace('<svg ', `<svg aria-hidden="true" focusable="false"${className ? ` class="${className}"` : ''} `);
+---
+
+<Fragment set:html={svg} />

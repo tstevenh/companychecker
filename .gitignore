@@ -32,3 +32,8 @@ pnpm-debug.log*
 .dev.vars
 .dev.vars.*
 worker-configuration.d.ts
+
+# Design notes and review captures (kept private, not part of the public site)
+.impeccable/
+PRODUCT.md
+DESIGN.md

@@ -2,8 +2,14 @@
 import Base from '../layouts/Base.astro';
 import NameCheckForm from '../components/NameCheckForm.astro';
 import RegistrationOptions from '../components/RegistrationOptions.astro';
+import Icon from '../components/ui/Icon.astro';
+import Reduction from '../components/ui/Reduction.astro';
+import Register from '../components/ui/Register.astro';
 import { runNameCheck } from '../lib/server/runtime.ts';
-import { formatDate } from '../lib/facts';
+import { formatDate, formatFactValue } from '../lib/facts';
+import { reductionParts } from '../lib/company-name/reduction';
+import { PROVIDER_REL, REGISTER_LINKS } from '../data/providers';
+import { getEntry } from 'astro:content';
 
 export const prerender = false;
 
@@ -22,151 +28,364 @@ const companyUrl = (number: string) =>
   `https://find-and-update.company-information.service.gov.uk/company/${encodeURIComponent(number)}`;
 
 const statusLabel = (status: string) => (status ? status.replace(/-/g, ' ') : 'status unknown');
+const tide = (await getEntry('facts', 'provider-tide-registration'))!.data;
+const directFee = formatFactValue((await getEntry('facts', 'ch-fee-incorporation-online'))!.data);
+// Words that count in the name, to seed the name generator when it's taken.
+const ideaWords =
+  'error' in result
+    ? ''
+    : reductionParts(result.name)
+        .filter((p) => !p.ignored)
+        .map((p) => p.text)
+        .join('')
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(' ');
 const snapshotDate = 'error' in result || !result.indexSnapshot ? null : formatDate(new Date(result.indexSnapshot));
+const registerRows =
+  'error' in result
+    ? []
+    : [
+        ...result.similar.map((c) => ({ key: c.key, name: c.name, number: c.number })),
+        ...result.sameAs.map((c) => ({ key: result.key, name: c.name, number: c.number })),
+      ];
 ---
 
 <Base
   title={`Is "${name}" available? | Company Name Checker`}
   description="UK company name availability check against Companies House records, with the 'same as' rules explained."
   noindex
+  layout="wide"
 >
-  <NameCheckForm value={name} />
+  <div class="frame result">
+    <NameCheckForm value={name} />
 
-  {
-    'error' in result ? (
-      <p class="notice">{ERROR_MESSAGES[result.error]}</p>
-    ) : (
-      <>
-        {result.verdict === 'available' && (
-          <section class="verdict verdict-ok">
-            <h1>"{result.name}" looks available</h1>
-            <p>No live UK company has a name that counts as the same under the Companies House rules.</p>
-          </section>
-        )}
-        {result.verdict === 'taken' && (
-          <section class="verdict verdict-taken">
-            <h1>"{result.name}" is already taken</h1>
-            <p>
-              {result.sameAs.length === 1 ? 'This company has' : 'These companies have'} a name Companies House treats as
-              the same as yours, so it would reject the name unless you have their consent.
-            </p>
-          </section>
-        )}
-        {result.verdict === 'unknown' && (
-          <section class="verdict">
-            <h1>We couldn't check "{result.name}" right now</h1>
-            <p>
-              Our company data is temporarily unavailable. You can search the official{' '}
-              <a href="https://find-and-update.company-information.service.gov.uk/company-name-availability">
-                Companies House name availability checker
-              </a>{' '}
-              meanwhile.
-            </p>
-          </section>
-        )}
+    {
+      'error' in result ? (
+        <p class="notice">{ERROR_MESSAGES[result.error]}</p>
+      ) : (
+        <>
+          <div class="result__top">
+            <section class:list={['verdict-head', `is-${result.verdict}`]} aria-labelledby="verdict-heading">
+              {result.verdict === 'available' && (
+                <>
+                  <h1 id="verdict-heading">
+                    <span class="verdict-head__name">“{result.name}”</span> looks available
+                  </h1>
+                  <p>No live UK company has a name that counts as the same under the Companies House rules.</p>
+                  <div class="next-step">
+                    <a class="button next-step__button" href={REGISTER_LINKS.tide} rel={PROVIDER_REL} target="_blank">
+                      Register with Tide for {formatFactValue(tide)}<Icon name="arrowUpRight" />
+                    </a>
+                    <p class="next-step__note">
+                      {tide.notes} <a href={`/sources/#${tide.id}`}>Source</a>. <a href="/disclosure/">Affiliate link</a>.
+                    </p>
+                    <p class="next-step__alt">
+                      Or <a href={REGISTER_LINKS.companiesHouse} rel="nofollow noopener" target="_blank">register directly with Companies House</a> for {directFee}.
+                      <a href="#register-heading">Compare all ways</a>
+                    </p>
+                  </div>
+                </>
+              )}
+              {result.verdict === 'taken' && (
+                <>
+                  <h1 id="verdict-heading">
+                    <span class="verdict-head__name">“{result.name}”</span> is already taken
+                  </h1>
+                  <p>
+                    {result.sameAs.length === 1 ? 'This company has' : 'These companies have'} a name Companies House
+                    treats as the same as yours, so it would reject the name unless you have their consent.
+                  </p>
+                  <div class="next-step">
+                    <a class="button next-step__button" href={`/business-name-generator/ideas/?keywords=${encodeURIComponent(ideaWords)}`}>
+                      Get name ideas<Icon name="arrowRight" />
+                    </a>
+                    <p class="next-step__alt">Each idea is checked against every live UK company, or try another name above.</p>
+                  </div>
+                </>
+              )}
+              {result.verdict === 'unknown' && (
+                <>
+                  <h1 id="verdict-heading">We couldn't check “{result.name}” right now</h1>
+                  <p>
+                    Our company data is temporarily unavailable. You can search the official{' '}
+                    <a href="https://find-and-update.company-information.service.gov.uk/company-name-availability">
+                      Companies House name availability checker
+                    </a>{' '}
+                    meanwhile.
+                  </p>
+                </>
+              )}
+              {result.verdict !== 'unknown' && (
+                <div class="verdict-head__reading">
+                  <Reduction name={result.name} size="large" />
+                  <p class="muted small">
+                    Companies House compares names after removing endings like "Ltd", punctuation, a final "S", "The" at
+                    the start, and similar. <a href="/company-name-rules/">How the "same as" rules work</a>.
+                  </p>
+                </div>
+              )}
+            </section>
 
-        {result.verdict !== 'unknown' && (
-          <p class="muted">
-            Companies House compares names after removing endings like "Ltd", punctuation, a final "S", "The" at the
-            start, and similar. Your name reduces to <code>{result.key}</code>.{' '}
-            <a href="/company-name-rules/">How the "same as" rules work</a>.
+            {result.verdict !== 'unknown' && (
+              <Register
+                rows={registerRows}
+                you={{ name: result.name, key: result.key }}
+                state={result.verdict}
+                caption="Where your name sits on the register"
+              />
+            )}
+          </div>
+
+          <div class:list={['result__body', { 'has-aside': result.verdict !== 'unknown' }]}>
+            <div class="result__main">
+              {result.sameAs.length > 0 && (
+                <section>
+                  <h2>Companies with the same name</h2>
+                  <div class="table-wrap">
+                    <table class="register-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Company</th>
+                          <th scope="col">Number</th>
+                          <th scope="col">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {result.sameAs.map((c) => (
+                          <tr>
+                            <td>
+                              <a href={companyUrl(c.number)} rel="nofollow noopener">
+                                {c.name}
+                              </a>
+                            </td>
+                            <td class="mono">{c.number}</td>
+                            <td class="register-table__status">{statusLabel(c.status)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              )}
+
+              {result.similar.length > 0 && (
+                <section>
+                  <h2>Similar names already registered</h2>
+                  <p class="muted">
+                    Not the same under the rules, but Companies House can still object to names that are "too like" an
+                    existing one.
+                  </p>
+                  <ul class="similar">
+                    {result.similar.map((c) => (
+                      <li>
+                        <span>{c.name}</span>
+                        <span class="mono similar__num">{c.number}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {result.verdict === 'available' && result.similar.length === 0 && (
+                <section>
+                  <h2>No similar names found</h2>
+                  <p class="muted">
+                    Nothing close enough to risk a "too like" objection turned up in our data. Companies House still makes
+                    the final call when you file.
+                  </p>
+                </section>
+              )}
+            </div>
+
+            {result.verdict === 'available' && (
+              <aside class="result__aside" aria-labelledby="register-heading">
+                <h2 id="register-heading">Ways to register this name</h2>
+                <RegistrationOptions />
+                <p>
+                  Before you register, also check that nobody has a trade mark on the name (search the{' '}
+                  <a href="https://www.gov.uk/search-for-trademark" rel="nofollow noopener">
+                    UK trade marks register
+                  </a>
+                  ) and that you can get a matching{' '}
+                  <a href={`/domain-name-checker/results/?name=${encodeURIComponent(result.name)}`}>domain</a>. Read our
+                  guide to <a href="/register-a-limited-company/">registering a limited company</a>, and compare
+                  <a href="/business-bank-account-for-limited-company/">business bank accounts</a>.
+                </p>
+              </aside>
+            )}
+
+            {result.verdict === 'taken' && (
+              <aside class="result__aside" aria-labelledby="next-heading">
+                <h2 id="next-heading">What you can do</h2>
+                <p>
+                  Add a distinctive word ("Copper Bakery" rather than "Bakery"), change the order, or use a different
+                  descriptive word, then check again above.
+                </p>
+              </aside>
+            )}
+          </div>
+
+          <p class="muted small result__footnote">
+            {[
+              snapshotDate && `Checked against Companies House data from ${snapshotDate}`,
+              snapshotDate && result.checkedLive && ' and a live Companies House search',
+              !snapshotDate && result.checkedLive && 'Checked with a live Companies House search',
+              (snapshotDate || result.checkedLive) && '. ',
+            ]
+              .filter(Boolean)
+              .join('')}
+            Final approval of a name happens when Companies House accepts your filing.
           </p>
-        )}
-
-        {result.sameAs.length > 0 && (
-          <section>
-            <h2>Companies with the same name</h2>
-            <ul class="companies">
-              {result.sameAs.map((c) => (
-                <li>
-                  <a href={companyUrl(c.number)} rel="nofollow noopener">
-                    {c.name}
-                  </a>{' '}
-                  <span class="muted">
-                    {c.number} · {statusLabel(c.status)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {result.similar.length > 0 && (
-          <section>
-            <h2>Similar names already registered</h2>
-            <p class="muted">
-              Not the same under the rules, but Companies House can still object to names that are "too like" an
-              existing one.
-            </p>
-            <ul class="companies">
-              {result.similar.map((c) => (
-                <li>
-                  {c.name} <span class="muted">{c.number}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {result.verdict === 'available' && (
-          <section>
-            <h2>Ways to register this name</h2>
-            <RegistrationOptions />
-            <p>
-              Before you register, also check that nobody has a trade mark on the name (search the{' '}
-              <a href="https://www.gov.uk/search-for-trademark" rel="nofollow noopener">
-                UK trade marks register
-              </a>
-              ) and that you can get a matching domain. Read our guide to{' '}
-              <a href="/register-a-limited-company/">registering a limited company</a>.
-            </p>
-          </section>
-        )}
-
-        <p class="muted small">
-          {snapshotDate && <>Checked against Companies House data from {snapshotDate}</>}
-          {snapshotDate && result.checkedLive && <> and a live Companies House search</>}
-          {!snapshotDate && result.checkedLive && <>Checked with a live Companies House search</>}
-          {(snapshotDate || result.checkedLive) && '. '}
-          Final approval of a name happens when Companies House accepts your filing.
-        </p>
-      </>
-    )
-  }
+        </>
+      )
+    }
+  </div>
 </Base>
 
 <style>
-  .verdict {
-    border-left: 4px solid var(--line);
-    padding: 0.25rem 0 0.25rem 1rem;
-    margin: 1.5rem 0;
+  .result {
+    padding-top: clamp(1.5rem, 1rem + 2vw, 2.75rem);
   }
-  .verdict h1 {
-    margin: 0 0 0.5rem;
-    font-size: 1.6rem;
+  .result :global(.name-check) {
+    margin: 0 0 clamp(2.5rem, 2rem + 2vw, 4rem);
+    max-width: 44rem;
   }
-  .verdict-ok {
-    border-color: #1a7f37;
+
+  /* Re-checking is secondary here; the next step is the strong button */
+  .result :global(.name-check .button) {
+    background: transparent;
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1.5px var(--ink);
   }
-  .verdict-taken {
-    border-color: #cf222e;
+  .result :global(.name-check .button:hover) {
+    background: var(--bg-2);
   }
-  .companies {
-    padding-left: 1.2rem;
+  .result__top {
+    display: grid;
+    gap: 3rem 4.5rem;
+    align-items: center;
+    padding-bottom: clamp(2.5rem, 2rem + 2vw, 4rem);
+    border-bottom: 1px solid var(--line);
   }
-  .companies li {
-    margin: 0.3rem 0;
+  @media (min-width: 62rem) {
+    .result__top {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    }
   }
-  code {
-    font-size: 0.95em;
-    background: var(--line);
-    padding: 0.05rem 0.3rem;
-    border-radius: 4px;
+  .verdict-head h1 {
+    font-size: clamp(2.2rem, 1.4rem + 3vw, 3.75rem);
+    line-height: 1.02;
+    overflow-wrap: anywhere;
+    margin-bottom: 1rem;
   }
-  .small {
-    font-size: 0.85rem;
+  .is-available .verdict-head__name {
+    color: var(--cobalt);
   }
-  .notice {
-    font-weight: 600;
+  .is-taken .verdict-head__name {
+    color: var(--clash);
+  }
+  .verdict-head > p {
+    font-size: 1.1rem;
+    color: var(--ink-2);
+    max-width: 34em;
+  }
+  /* The one next step, in the first screen */
+  .next-step {
+    margin-top: 1.75rem;
+    display: grid;
+    justify-items: start;
+    gap: 0.6rem;
+  }
+  .next-step__button {
+    font-size: 1.05rem;
+    padding: 0.95rem 1.6rem;
+    box-shadow: 0 14px 28px -18px var(--shadow-cobalt);
+  }
+  .next-step p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-2);
+    max-width: 36em;
+  }
+  .next-step__note a {
+    color: var(--ink-2);
+  }
+  @media (max-width: 40rem) {
+    .next-step,
+    .next-step__button {
+      width: 100%;
+    }
+  }
+  .verdict-head__reading {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .verdict-head__reading p {
+    margin: 1rem 0 0;
+  }
+
+  .result__body {
+    display: grid;
+    gap: 1rem 4.5rem;
+  }
+  @media (min-width: 64rem) {
+    .result__body.has-aside {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: start;
+    }
+  }
+  .result__aside {
+    margin-top: 3.25rem;
+    padding: 1.6rem 1.6rem 0.6rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+  .result__aside h2 {
+    margin-top: 0;
+    font-size: clamp(1.45rem, 1.2rem + 0.8vw, 1.9rem);
+  }
+
+  .register-table a {
+    font-weight: 500;
+  }
+  .register-table td.mono {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  .register-table__status {
+    text-transform: capitalize;
+    color: var(--ink-2);
+  }
+
+  .similar {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    columns: 2 16rem;
+    column-gap: 2.5rem;
+  }
+  .similar li {
+    break-inside: avoid;
+    margin: 0;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.95rem;
+  }
+  .similar__num {
+    color: var(--ink-3);
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .result__footnote {
+    margin-top: 3.5rem;
+    max-width: 46rem;
   }
 </style>

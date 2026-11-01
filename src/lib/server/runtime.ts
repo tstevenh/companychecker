@@ -3,6 +3,8 @@
 
 import { env } from 'cloudflare:workers';
 import type { IndexManifest } from '../company-index/format.ts';
+import { lookupName } from '../company-index/lookup.ts';
+import { normalizeCompanyName } from '../company-name/normalize.ts';
 import { checkName, companiesHouseSearch, loadManifest, type LiveCompany, type NameCheckDeps } from '../name-check.ts';
 import { companiesHouseProfile, companyDetails, searchCompanies, type LiveProfile } from '../company-lookup.ts';
 import { nameIdeas } from '../name-ideas.ts';
@@ -119,4 +121,16 @@ export async function runNameCheck(name: string) {
     searchLive: runtime.COMPANIES_HOUSE_API_KEY ? cachedLiveSearch(runtime.COMPANIES_HOUSE_API_KEY) : undefined,
   };
   return checkName(name, deps, await currentManifest());
+}
+
+// Where a name would sit in the register: companies with the same normalised
+// name and the alphabetical neighbours either side. Index only, never the live
+// Companies House API, so it is cheap enough to call as the visitor types.
+export async function runRegister(name: string) {
+  const key = normalizeCompanyName(name.slice(0, 160));
+  if (!key) return { key, exact: [], nearby: [], snapshot: null };
+  const manifest = await currentManifest();
+  if (!manifest) return null;
+  const match = await lookupName(manifest, key, loadText);
+  return { key, ...match, snapshot: manifest.snapshot };
 }

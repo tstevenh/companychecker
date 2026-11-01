@@ -14,6 +14,7 @@ const facts = await Promise.all(
   factIds.map(async (id) => {
     const entry = await getEntry('facts', id);
     if (!entry) throw new Error(`Unknown fact "${id}"`);
+    if (entry.data.internal) throw new Error(`Fact "${id}" is internal and can't be shown on a page`);
     return entry.data;
   }),
 );
@@ -41,8 +42,22 @@ const lastChecked = new Date(Math.max(...facts.map((f) => f.checked_on.getTime()
 
 <style>
   .guide-sources {
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--line);
-    padding-top: 1rem;
+    margin-top: 3.5rem;
+    padding: 1.4rem 1.5rem 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    font-size: 0.93rem;
+  }
+  .guide-sources h2 {
+    font-family: var(--sans);
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 0;
+    color: var(--ink-2);
+    margin: 0 0 0.75rem;
+  }
+  .guide-sources ul {
+    padding-left: 1.1rem;
   }
 </style>

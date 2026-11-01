@@ -1,0 +1,186 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+const value = async (id: string) => formatFactValue((await getEntry('facts', id))!.data);
+const [codeLength, pscExtension] = await Promise.all([value('iv-personal-code-length'), value('iv-psc-extension')]);
+// Used as an adjective ("a 14-day window"), so take the raw number.
+const pscWindowDays = (await getEntry('facts', 'iv-psc-window'))!.data.value;
+
+const title = 'Companies House personal code: what it is and where to find it';
+const description =
+  'Your Companies House personal code proves you have verified your identity. How to get it, where to find it, and when directors and PSCs must give it.';
+
+const faq = [
+  {
+    q: 'How many characters is a Companies House personal code?',
+    a: `It is ${codeLength} long. Copy it exactly as shown in your Companies House account or the email you received.`,
+  },
+  {
+    q: 'Do I need a different personal code for each company?',
+    a: 'No. The code belongs to you, not to a company. You verify once and use the same code for every company where you are a director or a person with significant control.',
+  },
+  {
+    q: 'I have lost my personal code. What do I do?',
+    a: 'Sign in to your Companies House account and open the "Manage account" tab, where the code is shown. If you verified after 8 July 2026, it was also emailed to you.',
+  },
+  {
+    q: 'Is the personal code the same as the company authentication code?',
+    a: 'No. The authentication code belongs to a company and is used to file for it online. The personal code belongs to a person and shows they have verified their identity.',
+  },
+  {
+    q: 'What if a director has not verified when the confirmation statement is due?',
+    a: 'The company cannot file its confirmation statement until every director is verified, so verify early. See <a href="/confirmation-statement/">confirmation statements</a>.',
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[
+    { name: 'Guides', href: '/guides/' },
+    { name: 'Identity verification', href: '/companies-house-identity-verification/' },
+    { name: 'Personal code', href: '/companies-house-personal-code/' },
+  ]}
+  schema={[articleSchema({ title, description, href: '/companies-house-personal-code/', updated: '2026-11-01' }), faqSchema(faq)]}
+>
+  <h1>Companies House personal code</h1>
+  <p class="lede">
+    When you verify your identity for Companies House, you get a personal code. Directors and people with significant
+    control (PSCs) give this code to Companies House to show they're verified.
+  </p>
+
+  <h2>What the personal code is</h2>
+  <ul>
+    <li>It's <Fact id="iv-personal-code-length" /> long.<Src id="iv-personal-code-length" /></li>
+    <li>
+      It belongs to you, not to a company. You use the same code for every company you're involved in, so you only verify
+      once.<Src id="iv-personal-code-reuse" />
+    </li>
+    <li>It proves who you are, so keep it as private as you would a tax reference or a password.</li>
+  </ul>
+
+  <h2>How to get your personal code</h2>
+  <p>You get the code by verifying your identity, in one of three ways:</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Route</th>
+          <th scope="col">Cost</th>
+          <th scope="col">When you get the code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>GOV.UK One Login, using the app, online questions or photo ID details<Src id="iv-one-login-routes" /></td>
+          <td><Fact id="idv-route-one-login-cost" /></td>
+          <td>When verification is complete</td>
+        </tr>
+        <tr>
+          <td>At a Post Office, after starting online<Src id="iv-post-office-result-time" /></td>
+          <td>Free<Src id="iv-post-office-original-id" /></td>
+          <td>Usually within <Fact id="iv-post-office-result-time" />, in the result email</td>
+        </tr>
+        <tr>
+          <td>Through an authorised agent (ACSP), from any country<Src id="iv-acsp-route" /></td>
+          <td>The agent may charge</td>
+          <td><Fact id="iv-acsp-code-email" />, by email</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Which ID you need, and the step-by-step routes, are in our
+    <a href="/companies-house-identity-verification/">identity verification guide</a>.
+  </p>
+
+  <h2>Where to find your personal code</h2>
+  <p>
+    Sign in to your Companies House account and open the "Manage account" tab: the code is shown there.<Src
+      id="iv-personal-code-where"
+    /> If you verified after 8 July 2026, Companies House also emailed it to you. If you verified through an agent, the
+    code goes to the email address you gave them.<Src id="iv-acsp-code-email" />
+  </p>
+
+  <h2>When you need to give your personal code</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Who</th>
+          <th scope="col">When to give the code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Directors of existing companies</th>
+          <td><Fact id="idv-existing-directors-deadline" /></td>
+        </tr>
+        <tr>
+          <th scope="row">New directors</th>
+          <td><Fact id="idv-new-directors-deadline" /></td>
+        </tr>
+        <tr>
+          <th scope="row">PSCs who are not directors</th>
+          <td><Fact id="iv-psc-not-director" /><Src id="iv-psc-not-director" /></td>
+        </tr>
+        <tr>
+          <th scope="row">PSCs who are also directors</th>
+          <td>A {pscWindowDays}-day window from the day after the confirmation statement date<Src id="iv-psc-also-director" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    A PSC who needs more time can ask for an extension of up to {pscExtension}, but must ask before the deadline
+    passes.<Src id="iv-psc-extension" /> Existing directors and PSCs are being brought in over
+    <Fact id="iv-transition-period" />, and each person has their own due date.<Src id="iv-transition-period" />
+  </p>
+
+  <h2>Why it matters for your confirmation statement</h2>
+  <p>
+    A company can't file its confirmation statement until every director is verified.<Src
+      id="iv-blocks-confirmation-statement"
+    /> If a director's code is missing when the statement is due, the filing is late, so check everyone has verified well
+    before your <a href="/confirmation-statement/">confirmation statement</a> date. You can see the date for any company
+    with the <a href="/company-search/">company search</a>.
+  </p>
+
+  <Faq items={faq} />
+
+  <RelatedPages
+    hrefs={['/companies-house-identity-verification/', '/confirmation-statement/', '/register-a-limited-company/', '/company-search/']}
+  />
+
+  <GuideSources
+    factIds={[
+      'iv-personal-code-length',
+      'iv-personal-code-reuse',
+      'iv-personal-code-where',
+      'iv-one-login-routes',
+      'idv-route-one-login-cost',
+      'iv-post-office-result-time',
+      'iv-post-office-original-id',
+      'iv-acsp-route',
+      'iv-acsp-code-email',
+      'idv-existing-directors-deadline',
+      'idv-new-directors-deadline',
+      'iv-psc-window',
+      'iv-psc-not-director',
+      'iv-psc-also-director',
+      'iv-psc-extension',
+      'iv-transition-period',
+      'iv-blocks-confirmation-statement',
+    ]}
+  />
+</Base>

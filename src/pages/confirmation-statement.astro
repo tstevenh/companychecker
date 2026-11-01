@@ -8,7 +8,7 @@ import RelatedPages from '../components/RelatedPages.astro';
 import Src from '../components/Src.astro';
 import { articleSchema, faqSchema } from '../lib/schema';
 
-const title = 'Confirmation statement: deadline, fee and how to file';
+const title = 'Confirmation statement: due date, fee and how to file';
 const description =
   'When your Companies House confirmation statement is due, the fee, what you confirm, identity verification and late penalties, with a free deadline checker.';
 
@@ -76,7 +76,7 @@ const faq = [
     </table>
   </div>
 
-  <h2>What it costs</h2>
+  <h2>Confirmation statement fee</h2>
   <div class="table-wrap">
     <table>
       <tbody>
@@ -85,7 +85,7 @@ const faq = [
       </tbody>
     </table>
   </div>
-  <p>You only pay with the first confirmation statement in each 12-month payment period, so filing an extra one to report a change costs nothing more.<Src id="cs-fee-once-per-period" /></p>
+  <p>You only pay with the first confirmation statement in each 12-month payment period, so filing an extra one to report a change costs nothing more.<Src id="cs-fee-once-per-period" /> For every other filing fee, see <a href="/companies-house-fees/">Companies House fees</a>.</p>
 
   <h2>What you confirm or update</h2>
   <p>You must file even if nothing changed during the review period.<Src id="cs-no-changes" /> Some changes have to be filed separately before the statement; others go on the statement itself.</p>
@@ -127,11 +127,12 @@ const faq = [
     Companies House won't accept a confirmation statement until every director has verified their identity: each
     director's personal code goes on the statement.<Src id="cs-iv-required" /> Existing directors give their code with
     the company's next confirmation statement<Src id="idv-existing-directors-deadline" />, so verify well before your
-    filing date. Unverified directors are the most common reason a statement gets stuck. See the
+    filing date: an unverified director stops the statement being filed. See
+    <a href="/companies-house-personal-code/">where to find your personal code</a> and the
     <a href="/companies-house-identity-verification/">identity verification guide</a>.
   </p>
 
-  <h2>How to file</h2>
+  <h2>How to file your confirmation statement</h2>
   <p>File online with Companies House, which needs your Companies House password and company authentication code, or send paper form CS01 by post.<Src id="cs-how-to-file" /></p>
   <ol>
     <li>Make sure every director has a Companies House personal code.</li>
@@ -161,9 +162,6 @@ const faq = [
 </Base>
 
 <style>
-  .lede {
-    font-size: 1.1rem;
-  }
   caption {
     text-align: left;
     font-size: 0.9rem;
@@ -171,8 +169,5 @@ const faq = [
   td ul {
     margin: 0;
     padding-left: 1.1rem;
-  }
-  li {
-    margin: 0.3rem 0;
   }
 </style>

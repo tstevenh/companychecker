@@ -38,5 +38,16 @@
       "Added UK trade mark search, fees (from 1 April 2026), timings and renewal.",
       "Added the registration lookup services used by the domain name checker."
     ]
+  },
+  {
+    "id": "2026-11-01-banking-fees",
+    "date": "2026-11-01",
+    "title": "Business accounts, fees and personal codes",
+    "changes": [
+      "Added business account facts for Tide, ANNA, Starling, Monzo Business, Mettle and Wise Business, from each provider's own pages.",
+      "Added the FSCS deposit protection limit of £120,000, in force since 1 December 2025.",
+      "Added ANNA's standard company registration price of £19 (free with its paid Enhanced or Total Support plans), replacing the free price shown before.",
+      "New pages: Companies House fees, Companies House personal code, and business bank accounts."
+    ]
   }
 ]

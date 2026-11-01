@@ -1,0 +1,335 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import Icon from '../components/ui/Icon.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+import { BANK_LINKS, PROVIDER_REL } from '../data/providers';
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+const value = async (id: string) => formatFactValue((await getEntry('facts', id))!.data);
+const [fscsLimit, tidePaid, monzoPro, wiseSetup, tideRegistration, annaRegistration] = await Promise.all([
+  value('fscs-deposit-limit'),
+  value('bank-tide-cheapest-paid-plan'),
+  value('bank-monzo-pro-plan'),
+  value('bank-wise-setup-fee'),
+  value('provider-tide-registration'),
+  value('provider-anna-registration-standard'),
+]);
+
+const title = 'Business bank accounts for a limited company: UK compared';
+const description =
+  'Compare UK business bank accounts for a new limited company: monthly fees, FSCS protection, who can open one and which suits you. Every figure is sourced.';
+
+// Each account: the facts behind its row and its detail block.
+const accounts = [
+  {
+    name: 'Tide',
+    href: BANK_LINKS.tide,
+    rel: PROVIDER_REL,
+    fee: 'bank-tide-free-plan',
+    protection: 'bank-tide-protection',
+    kind: 'Bank-backed',
+  },
+  {
+    name: 'ANNA',
+    href: BANK_LINKS.anna,
+    rel: PROVIDER_REL,
+    fee: 'bank-anna-free-plan',
+    protection: 'bank-anna-protection',
+    kind: 'E-money',
+  },
+  {
+    name: 'Starling',
+    href: BANK_LINKS.starling,
+    rel: 'nofollow noopener',
+    fee: 'bank-starling-monthly-fee',
+    protection: 'bank-starling-protection',
+    kind: 'Bank',
+  },
+  {
+    name: 'Monzo Business',
+    href: BANK_LINKS.monzo,
+    rel: 'nofollow noopener',
+    fee: 'bank-monzo-free-plan',
+    protection: 'bank-monzo-protection',
+    kind: 'Bank',
+  },
+  {
+    name: 'Mettle by NatWest',
+    href: BANK_LINKS.mettle,
+    rel: 'nofollow noopener',
+    fee: 'bank-mettle-monthly-fee',
+    protection: 'bank-mettle-protection',
+    kind: 'Bank-backed',
+  },
+  {
+    name: 'Wise Business',
+    href: BANK_LINKS.wise,
+    rel: 'nofollow noopener',
+    fee: 'bank-wise-monthly-fee',
+    protection: 'bank-wise-protection',
+    kind: 'E-money',
+    feeNote: `${wiseSetup} one-off set-up`,
+  },
+];
+
+const faq = [
+  {
+    q: 'Which business bank account is best for a limited company?',
+    a: 'There isn\'t one best account for everyone. It depends on where the directors live, who owns the company, whether you need FSCS protection, and whether you invoice clients or get paid in other currencies. The table on this page shows how each account handles those.',
+  },
+  {
+    q: 'Can I get a business bank account with no monthly fee?',
+    a: `Yes. All six accounts here have a plan with no monthly fee, though you still pay for some things you use, such as certain transfers or cash. Wise also charges a one-off ${wiseSetup} to set up account details for receiving money.`,
+  },
+  {
+    q: 'Is the money in a business account protected?',
+    a: `In a bank, or an account a bank provides, eligible deposits are protected by the FSCS up to ${fscsLimit} per bank. E-money accounts, such as ANNA's main account and Wise, are not covered by the FSCS: the provider safeguards your money instead.`,
+  },
+  {
+    q: 'Can I open a business account if I live outside the UK?',
+    a: 'It\'s harder. Starling and Mettle need directors to live in the UK, and Monzo needs the business to be based and tax resident here. Tide accepts directors of a UK-registered company who have a UK residential address and a UK phone number. Check each provider\'s rules before you apply.',
+  },
+  {
+    q: 'Can I open the account when I register the company?',
+    a: `Yes, with some providers. Tide registers a company for ${tideRegistration} and includes a business account. ANNA registers companies for ${annaRegistration}. See <a href="/register-a-limited-company/">how to register a limited company</a>.`,
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Business bank accounts', href: '/business-bank-account-for-limited-company/' }]}
+  schema={[articleSchema({ title, description, href: '/business-bank-account-for-limited-company/', updated: '2026-11-01' }), faqSchema(faq)]}
+>
+  <h1>Business bank accounts for a new limited company</h1>
+  <p class="lede">
+    Six UK business accounts that open online, compared on what matters to a new limited company: the monthly fee, how
+    your money is protected, and who can open one. Every figure links to the provider's own page.
+  </p>
+  <p class="muted small">
+    General information, not financial advice. Check each provider's terms before you apply. Links to Tide and ANNA are
+    <a href="/disclosure/">affiliate links</a>; the others are not.
+  </p>
+
+  <h2>At a glance</h2>
+  <div class="table-wrap">
+    <table class="glance">
+      <thead>
+        <tr>
+          <th scope="col">Account</th>
+          <th scope="col">Monthly fee (cheapest plan)</th>
+          <th scope="col">Type</th>
+          <th scope="col">Your money</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          accounts.map((a) => (
+            <tr>
+              <th scope="row">
+                <a href={`#${a.name.toLowerCase().replace(/[^a-z]+/g, '-')}`}>{a.name}</a>
+              </th>
+              <td>
+                <Fact id={a.fee} />
+                {a.feeNote && <span class="muted small"> ({a.feeNote})</span>}
+              </td>
+              <td>{a.kind}</td>
+              <td><Fact id={a.protection} /></td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="muted small">
+    "Bank-backed" means the provider isn't a bank itself, but the account is provided by one: ClearBank for Tide and
+    NatWest for Mettle.
+  </p>
+
+  <h2>The accounts in detail</h2>
+
+  <section class="acct" id="tide">
+    <h3>Tide</h3>
+    <ul>
+      <li>No monthly fee on the standard account; you pay per use.<Src id="bank-tide-free-plan" /> Paid plans start at {tidePaid} a month.<Src id="bank-tide-cheapest-paid-plan" /></li>
+      <li>Accounts are provided by ClearBank, so eligible deposits are FSCS protected.<Src id="bank-tide-protection" /> Some older Tide e-money accounts are safeguarded rather than FSCS protected.<Src id="bank-tide-emoney-legacy" /></li>
+      <li>For limited company directors over 18 with a UK-based business; no hard credit check.<Src id="bank-tide-eligibility" /> If you live abroad you need a UK residential address and a UK phone number.<Src id="bank-tide-non-uk-applicants" /></li>
+      <li>Tide also registers companies for {tideRegistration}, with the account included.<Src id="provider-tide-registration" /></li>
+    </ul>
+    <a class="acct__link" href={BANK_LINKS.tide} rel={PROVIDER_REL} target="_blank">Tide business account<Icon name="arrowUpRight" /></a>
+  </section>
+
+  <section class="acct" id="anna">
+    <h3>ANNA</h3>
+    <ul>
+      <li>The Free plan has no monthly fee.<Src id="bank-anna-free-plan" /> Incoming payments are free up to <Fact id="bank-anna-free-plan-incoming-limit" /> a month, then ANNA charges a commission.<Src id="bank-anna-free-plan-incoming-limit" /></li>
+      <li>On any plan, there's no monthly fee for a month you don't use the account.<Src id="bank-anna-unused-month" /></li>
+      <li>The main account is e-money: safeguarded, not FSCS protected.<Src id="bank-anna-protection" /> A separate ANNA Savings account, from Griffin Bank, is FSCS protected.<Src id="bank-anna-savings-fscs" /></li>
+      <li>You must live in the UK to open an account.<Src id="bank-anna-eligibility" /> ANNA registers companies for {annaRegistration}.<Src id="provider-anna-registration-standard" /></li>
+    </ul>
+    <a class="acct__link" href={BANK_LINKS.anna} rel={PROVIDER_REL} target="_blank">ANNA business account<Icon name="arrowUpRight" /></a>
+  </section>
+
+  <section class="acct" id="starling">
+    <h3>Starling</h3>
+    <ul>
+      <li>No monthly fee.<Src id="bank-starling-monthly-fee" /> Invoicing is free.<Src id="bank-starling-invoicing" /></li>
+      <li>Starling is a bank, so eligible deposits are FSCS protected. Business account deposits count as one depositor.<Src id="bank-starling-protection" /></li>
+      <li>For limited companies and LLPs registered at Companies House.<Src id="bank-starling-eligibility-company" /> Every director with access must live in the UK<Src id="bank-starling-director-residency" />, and every PSC must be a UK-resident individual, so no corporate shareholders.<Src id="bank-starling-psc-rule" /></li>
+    </ul>
+    <a class="acct__link" href={BANK_LINKS.starling} rel="nofollow noopener" target="_blank">Starling business account<Icon name="arrowUpRight" /></a>
+  </section>
+
+  <section class="acct" id="monzo-business">
+    <h3>Monzo Business</h3>
+    <ul>
+      <li>The Lite plan is free.<Src id="bank-monzo-free-plan" /> Pro costs {monzoPro} a month<Src id="bank-monzo-pro-plan" /> and adds invoicing, tax pots and a Xero connection.<Src id="bank-monzo-pro-features" /></li>
+      <li>Monzo is a bank, so eligible deposits are FSCS protected.<Src id="bank-monzo-protection" /></li>
+      <li>For directors of UK limited companies.<Src id="bank-monzo-eligibility" /> The business must be based, registered and tax resident in the UK.<Src id="bank-monzo-uk-only" /></li>
+    </ul>
+    <a class="acct__link" href={BANK_LINKS.monzo} rel="nofollow noopener" target="_blank">Monzo Business plans<Icon name="arrowUpRight" /></a>
+  </section>
+
+  <section class="acct" id="mettle-by-natwest">
+    <h3>Mettle by NatWest</h3>
+    <ul>
+      <li>No fee to open or maintain the account.<Src id="bank-mettle-opening-fee" /><Src id="bank-mettle-monthly-fee" /> FreeAgent accounting software is included while you make at least one transaction a month.<Src id="bank-mettle-freeagent" /></li>
+      <li>The account is provided by NatWest, so eligible deposits are FSCS protected.<Src id="bank-mettle-protection" /> The limit is shared with NatWest, NatWest Premier, Ulster Bank and NatWest Boxed.<Src id="bank-mettle-shared-licence" /></li>
+      <li>For limited companies with up to two owners, and only one of them can use the account.<Src id="bank-mettle-ltd-restriction" /> The business must be registered and trading in the UK.<Src id="bank-mettle-uk-requirement" /></li>
+    </ul>
+    <a class="acct__link" href={BANK_LINKS.mettle} rel="nofollow noopener" target="_blank">Mettle business account<Icon name="arrowUpRight" /></a>
+  </section>
+
+  <section class="acct" id="wise-business">
+    <h3>Wise Business</h3>
+    <ul>
+      <li>No monthly fee or subscription.<Src id="bank-wise-monthly-fee" /> A one-off {wiseSetup} fee sets up account details to receive money in <Fact id="bank-wise-currencies" /> currencies.<Src id="bank-wise-setup-fee" /></li>
+      <li>Wise is an e-money institution<Src id="bank-wise-regulation" />: it safeguards your money rather than it being FSCS protected.<Src id="bank-wise-protection" /></li>
+      <li>Open to limited companies.<Src id="bank-wise-eligibility" /> Best suited to companies that pay or get paid in other currencies.</li>
+    </ul>
+    <a class="acct__link" href={BANK_LINKS.wise} rel="nofollow noopener" target="_blank">Wise Business<Icon name="arrowUpRight" /></a>
+  </section>
+
+  <h2>Bank or e-money account?</h2>
+  <p>
+    This is the biggest difference between these accounts, and it's about what happens if the provider fails.
+  </p>
+  <ul>
+    <li>
+      <strong>Banks</strong>: eligible deposits are protected by the Financial Services Compensation Scheme up to
+      <Fact id="fscs-deposit-limit" /> per eligible person, per bank.<Src id="fscs-deposit-limit" /> The limit rose to this
+      on <Fact id="fscs-deposit-limit-effective-date" />.<Src id="fscs-deposit-limit-effective-date" /> Starling, Monzo,
+      Tide (through ClearBank) and Mettle (through NatWest) are in this group.
+    </li>
+    <li>
+      <strong>E-money institutions</strong>: the provider holds an equal amount of money in a separate safeguarding account
+      to protect customers if it becomes insolvent<Src id="bank-tide-emoney-legacy" />, but the FSCS doesn't cover it.<Src
+        id="bank-anna-protection"
+      /> ANNA's main account and Wise work this way.
+    </li>
+  </ul>
+  <p>
+    If the company will hold large balances, FSCS protection may matter more to you than a lower fee. If you mainly need
+    to send and receive payments, an e-money account can be enough.
+  </p>
+
+  <h2>Which account suits your company?</h2>
+  <ul>
+    <li><strong>A director lives outside the UK</strong>: Starling and Mettle need UK-resident directors, and Monzo needs a UK-based business. Tide accepts directors with a UK address and phone number.</li>
+    <li><strong>A company owns shares in yours</strong>: Starling won't open the account, because every PSC must be an individual.</li>
+    <li><strong>More than two owners</strong>: Mettle is for companies with up to two owners.</li>
+    <li><strong>You'll invoice clients</strong>: Starling includes invoicing free; Monzo includes it on Pro.</li>
+    <li><strong>You'll be paid in other currencies</strong>: Wise gives you account details in <Fact id="bank-wise-currencies" /> currencies.</li>
+    <li><strong>You want FSCS protection</strong>: choose Starling, Monzo, Tide or Mettle rather than an e-money account.</li>
+    <li><strong>You haven't registered yet</strong>: Tide and ANNA can register the company and open the account together.</li>
+  </ul>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/register-a-limited-company/', '/companies-house-fees/', '/', '/vat-number-checker/']} />
+
+  <GuideSources
+    factIds={[
+      'fscs-deposit-limit',
+      'fscs-deposit-limit-effective-date',
+      'bank-tide-free-plan',
+      'bank-tide-cheapest-paid-plan',
+      'bank-tide-protection',
+      'bank-tide-emoney-legacy',
+      'bank-tide-eligibility',
+      'bank-tide-non-uk-applicants',
+      'provider-tide-registration',
+      'bank-anna-free-plan',
+      'bank-anna-free-plan-incoming-limit',
+      'bank-anna-unused-month',
+      'bank-anna-protection',
+      'bank-anna-savings-fscs',
+      'bank-anna-eligibility',
+      'provider-anna-registration-standard',
+      'bank-starling-monthly-fee',
+      'bank-starling-protection',
+      'bank-starling-eligibility-company',
+      'bank-starling-director-residency',
+      'bank-starling-psc-rule',
+      'bank-starling-invoicing',
+      'bank-monzo-free-plan',
+      'bank-monzo-pro-plan',
+      'bank-monzo-protection',
+      'bank-monzo-eligibility',
+      'bank-monzo-uk-only',
+      'bank-monzo-pro-features',
+      'bank-mettle-monthly-fee',
+      'bank-mettle-opening-fee',
+      'bank-mettle-protection',
+      'bank-mettle-shared-licence',
+      'bank-mettle-ltd-restriction',
+      'bank-mettle-uk-requirement',
+      'bank-mettle-freeagent',
+      'bank-wise-monthly-fee',
+      'bank-wise-setup-fee',
+      'bank-wise-protection',
+      'bank-wise-regulation',
+      'bank-wise-eligibility',
+      'bank-wise-currencies',
+    ]}
+  />
+</Base>
+
+<style>
+  .glance th a {
+    font-weight: 600;
+  }
+  .acct {
+    padding: 1.25rem 0 1.5rem;
+    border-top: 1px solid var(--line);
+    scroll-margin-top: 1.5rem;
+  }
+  .acct h3 {
+    margin: 0 0 0.6rem;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+  .acct ul {
+    margin-bottom: 0.9rem;
+  }
+  .acct__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 500;
+  }
+  .acct__link :global(svg) {
+    width: 0.9em;
+    height: 0.9em;
+  }
+</style>

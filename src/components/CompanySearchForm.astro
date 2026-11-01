@@ -1,4 +1,5 @@
 ---
+import Icon from './ui/Icon.astro';
 interface Props {
   value?: string;
   label?: string;
@@ -15,50 +16,11 @@ const {
 const id = `company-q-${Math.random().toString(36).slice(2, 8)}`;
 ---
 
-<form class="company-search" action="/company-search/results/" method="get" role="search">
+<form class="company-search field" action="/company-search/results/" method="get" role="search">
   <label for={id}>{label}</label>
   <div class="row">
     <input id={id} name="q" type="text" value={value} maxlength="160" required autocomplete="off" spellcheck="false" placeholder={placeholder} />
-    <button type="submit">{button}</button>
+    <button class="button" type="submit">{button}<Icon name="arrowRight" /></button>
   </div>
 </form>
 
-<style>
-  .company-search {
-    margin: 1.5rem 0;
-  }
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-  }
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  input {
-    flex: 1 1 16rem;
-    min-width: 0;
-    font: inherit;
-    padding: 0.7rem 0.8rem;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-  }
-  input:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
-  button {
-    font: inherit;
-    font-weight: 600;
-    padding: 0.7rem 1.2rem;
-    border: 0;
-    border-radius: 6px;
-    background: var(--accent);
-    color: var(--bg);
-    cursor: pointer;
-  }
-</style>

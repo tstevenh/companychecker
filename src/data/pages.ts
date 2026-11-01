@@ -58,6 +58,24 @@ export const PAGES: SitePage[] = [
     kind: 'guide',
   },
   {
+    href: '/companies-house-personal-code/',
+    title: 'Companies House personal code',
+    description: 'What your personal code is, where to find it, and when directors and PSCs must give it.',
+    kind: 'guide',
+  },
+  {
+    href: '/companies-house-fees/',
+    title: 'Companies House fees',
+    description: 'Every Companies House fee in one table: registering, confirmation statements, name changes and copies.',
+    kind: 'guide',
+  },
+  {
+    href: '/business-bank-account-for-limited-company/',
+    title: 'Business bank accounts',
+    description: 'Six UK business accounts for a new limited company, compared on fees, FSCS protection and who can open one.',
+    kind: 'guide',
+  },
+  {
     href: '/confirmation-statement/',
     title: 'Confirmation statement',
     description: 'What a confirmation statement is, when yours is due, what it costs, and a deadline checker.',

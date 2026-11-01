@@ -8,7 +8,7 @@ const byCategory = Object.entries(CATEGORY_LABELS)
   .map(([category, label]) => ({
     label,
     facts: facts
-      .filter((fact) => fact.data.category === category)
+      .filter((fact) => fact.data.category === category && !fact.data.internal)
       .sort((a, b) => a.data.label.localeCompare(b.data.label)),
   }))
   .filter((group) => group.facts.length > 0);
@@ -45,13 +45,13 @@ const byCategory = Object.entries(CATEGORY_LABELS)
                   {data.label}
                   {data.notes && <div class="muted">{data.notes}</div>}
                 </td>
-                <td>{formatFactValue(data)}</td>
+                <td class="value">{formatFactValue(data)}</td>
                 <td>
                   <a href={data.source_url} rel="nofollow noopener">
                     {data.source_title}
                   </a>
                 </td>
-                <td>{formatDate(data.checked_on)}</td>
+                <td class="checked">{formatDate(data.checked_on)}</td>
               </tr>
             ))}
           </tbody>
@@ -63,7 +63,20 @@ const byCategory = Object.entries(CATEGORY_LABELS)
 </Base>
 
 <style>
+  /* Break long words only when they would overflow, never mid-word otherwise */
   td {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+  }
+  .value {
+    min-width: 7rem;
+  }
+  .checked {
+    white-space: nowrap;
+  }
+  tr {
+    scroll-margin-top: 1.5rem;
+  }
+  tr:target td {
+    background: var(--cobalt-wash);
   }
 </style>

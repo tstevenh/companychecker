@@ -10,6 +10,7 @@ interface Props {
 
 const entry = await getEntry('facts', Astro.props.id);
 if (!entry) throw new Error(`Unknown fact "${Astro.props.id}"`);
+if (entry.data.internal) throw new Error(`Fact "${Astro.props.id}" is internal and can't be shown on a page`);
 ---
 
 <sup class="src"><a href={`/sources/#${entry.data.id}`} title={`Source: ${entry.data.source_title}`} aria-label={`Source: ${entry.data.source_title}`}>source</a></sup>

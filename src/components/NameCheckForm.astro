@@ -1,4 +1,5 @@
 ---
+import Icon from './ui/Icon.astro';
 interface Props {
   value?: string;
   autofocus?: boolean;
@@ -7,7 +8,7 @@ interface Props {
 const { value = '', autofocus = false } = Astro.props;
 ---
 
-<form class="name-check" action="/check/" method="get" role="search">
+<form class="name-check field" action="/check/" method="get" role="search">
   <label for="company-name">Company name</label>
   <div class="row">
     <input
@@ -22,46 +23,7 @@ const { value = '', autofocus = false } = Astro.props;
       placeholder="e.g. Acme Widgets Ltd"
       autofocus={autofocus}
     />
-    <button type="submit">Check name</button>
+    <button class="button" type="submit">Check name<Icon name="arrowRight" /></button>
   </div>
 </form>
 
-<style>
-  .name-check {
-    margin: 1.5rem 0;
-  }
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-  }
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  input {
-    flex: 1 1 16rem;
-    min-width: 0;
-    font: inherit;
-    padding: 0.7rem 0.8rem;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--text);
-  }
-  input:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-  }
-  button {
-    font: inherit;
-    font-weight: 600;
-    padding: 0.7rem 1.2rem;
-    border: 0;
-    border-radius: 6px;
-    background: var(--accent);
-    color: var(--bg);
-    cursor: pointer;
-  }
-</style>

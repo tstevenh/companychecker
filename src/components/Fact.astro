@@ -10,6 +10,7 @@ interface Props {
 
 const entry = await getEntry('facts', Astro.props.id);
 if (!entry) throw new Error(`Unknown fact "${Astro.props.id}"`);
+if (entry.data.internal) throw new Error(`Fact "${Astro.props.id}" is internal and can't be shown on a page`);
 ---
 
 <a class="fact" href={`/sources/#${entry.data.id}`} title={`Source: ${entry.data.source_title}`}>{formatFactValue(entry.data)}</a>
@@ -18,6 +19,7 @@ if (!entry) throw new Error(`Unknown fact "${Astro.props.id}"`);
   .fact {
     color: inherit;
     text-decoration: underline dotted;
+    text-decoration-color: var(--ink-2);
     text-underline-offset: 0.15em;
   }
 </style>

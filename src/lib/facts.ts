@@ -38,4 +38,5 @@ export const CATEGORY_LABELS: Record<Fact['category'], string> = {
   'vat-number': 'VAT numbers',
   'trade-marks': 'Trade marks',
   'domains': 'Domain names',
+  'business-banking': 'Business bank accounts',
 };

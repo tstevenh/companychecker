@@ -1,0 +1,200 @@
+---
+import Base from '../layouts/Base.astro';
+import Fact from '../components/Fact.astro';
+import Faq from '../components/Faq.astro';
+import GuideSources from '../components/GuideSources.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import Src from '../components/Src.astro';
+import { articleSchema, faqSchema } from '../lib/schema';
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+const value = async (id: string) => formatFactValue((await getEntry('facts', id))!.data);
+const [incOnline, incPaper, csOnline, csPaper, nameOnline, nameSameDay, copyFee, tmFee] = await Promise.all([
+  value('ch-fee-incorporation-online'),
+  value('ch-fee-incorporation-paper'),
+  value('ch-fee-confirmation-statement-online'),
+  value('ch-fee-confirmation-statement-paper'),
+  value('ch-fee-change-of-name-online'),
+  value('name-fee-same-day'),
+  value('search-certified-copy-fee'),
+  value('tm-fee-first-class'),
+]);
+
+const title = 'Companies House fees 2026: every filing fee in one table';
+const description =
+  'Current Companies House fees for registering a company, confirmation statements, changing a company name and copies of documents, each with its official source.';
+
+// Fee tables: each row is a fact, so the price and its source can't drift apart.
+const groups = [
+  {
+    heading: 'Setting up a company',
+    id: 'setting-up',
+    rows: ['ch-fee-incorporation-online', 'ch-fee-incorporation-software', 'ch-fee-incorporation-paper'],
+  },
+  {
+    heading: 'Every year',
+    id: 'every-year',
+    rows: ['ch-fee-confirmation-statement-online', 'ch-fee-confirmation-statement-paper'],
+  },
+  {
+    heading: 'Changing your company name',
+    id: 'change-of-name',
+    rows: ['ch-fee-change-of-name-online', 'ch-fee-change-of-name-paper', 'name-fee-same-day'],
+  },
+  {
+    heading: 'Searching the register and getting documents',
+    id: 'searching',
+    rows: ['search-free', 'search-certified-copy-fee', 'search-missing-image-fee'],
+  },
+];
+const feeRows = await Promise.all(
+  groups.map(async (group) => ({
+    ...group,
+    facts: await Promise.all(group.rows.map(async (id) => (await getEntry('facts', id))!.data)),
+  })),
+);
+
+const faq = [
+  {
+    q: 'How much does it cost to register a company with Companies House?',
+    a: `${incOnline} online, or ${incPaper} by post. Providers such as Tide and ANNA register companies too, at their own prices (Tide's includes a business account); see <a href="/register-a-limited-company/">how to register a limited company</a> and <a href="/business-bank-account-for-limited-company/">business bank accounts</a>.`,
+  },
+  {
+    q: 'How much is the confirmation statement fee?',
+    a: `${csOnline} online or ${csPaper} by post. You pay it once in each 12-month payment period, even if you file more than one statement.`,
+  },
+  {
+    q: 'Do dormant companies pay Companies House fees?',
+    a: 'Yes. A dormant company still files a confirmation statement and pays the same fee. Paying Companies House fees doesn\'t stop a company counting as dormant. See <a href="/dormant-company/">dormant companies</a>.',
+  },
+  {
+    q: 'Is searching Companies House free?',
+    a: `Yes. Searching the register and viewing a company's filed documents online is free. You pay only for extras such as a certified copy by post (${copyFee}).`,
+  },
+  {
+    q: 'Is a trade mark a Companies House fee?',
+    a: `No. Trade marks are registered with the Intellectual Property Office, not Companies House. An online application for one class costs ${tmFee}; see <a href="/trade-mark-search/">UK trade mark search</a>.`,
+  },
+];
+---
+
+<Base
+  title={title}
+  description={description}
+  ogType="article"
+  breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Companies House fees', href: '/companies-house-fees/' }]}
+  schema={[articleSchema({ title, description, href: '/companies-house-fees/', updated: '2026-11-01' }), faqSchema(faq)]}
+>
+  <h1>Companies House fees</h1>
+  <p class="lede">
+    What Companies House charges to register a company, file a confirmation statement, change a company name and send
+    you documents. Every fee links to the official fees page, with the date we last checked it.
+  </p>
+
+  <nav class="toc" aria-label="On this page">
+    <strong>On this page</strong>
+    <ul>
+      {feeRows.map((group) => <li><a href={`#${group.id}`}>{group.heading}</a></li>)}
+      <li><a href="#paying">How fees work</a></li>
+    </ul>
+  </nav>
+
+  {
+    feeRows.map((group) => (
+      <section>
+        <h2 id={group.id}>{group.heading}</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">What you're filing or buying</th>
+                <th scope="col">Fee</th>
+              </tr>
+            </thead>
+            <tbody>
+              {group.facts.map((fact) => (
+                <tr>
+                  <td>
+                    {fact.label}
+                    {fact.notes && <span class="muted small fee-note">{fact.notes}</span>}
+                  </td>
+                  <td class="fee">
+                    <Fact id={fact.id} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ))
+  }
+
+  <h2 id="paying">How fees work</h2>
+  <ul>
+    <li>
+      <strong>Registering online is cheaper than by post</strong>: <Fact id="ch-fee-incorporation-online" /> against
+      <Fact id="ch-fee-incorporation-paper" />, and it's <Fact id="formation-time-online" /> rather than
+      <Fact id="formation-time-post" />.
+    </li>
+    <li>
+      <strong>The confirmation statement fee is charged once per payment period.</strong> If you file a second statement in
+      the same 12 months, there's nothing more to pay.<Src id="cs-fee-once-per-period" /> Read more about
+      <a href="/confirmation-statement/">confirmation statements</a>.
+    </li>
+    <li>
+      <strong>A same-day name change costs more</strong> than the standard online fee. See
+      <a href="/change-company-name/">how to change a company name</a> for the forms and timings.
+    </li>
+    <li>
+      <strong>Verifying your identity through GOV.UK One Login is free.</strong><Src id="idv-route-one-login-cost" /> Agents
+      who verify people for Companies House may charge their own fee; see
+      <a href="/companies-house-identity-verification/">identity verification</a>.
+    </li>
+    <li>
+      <strong>Fines are separate from fees.</strong> Not filing a confirmation statement is an offence, with a fine of up to
+      <Fact id="cs-late-fine" />, and the company can be struck off.<Src id="cs-late-fine" />
+    </li>
+  </ul>
+
+  <Faq items={faq} />
+
+  <RelatedPages hrefs={['/register-a-limited-company/', '/confirmation-statement/', '/change-company-name/', '/company-search/']} />
+
+  <GuideSources
+    factIds={[
+      'ch-fee-incorporation-online',
+      'ch-fee-incorporation-software',
+      'ch-fee-incorporation-paper',
+      'ch-fee-confirmation-statement-online',
+      'ch-fee-confirmation-statement-paper',
+      'ch-fee-change-of-name-online',
+      'ch-fee-change-of-name-paper',
+      'name-fee-same-day',
+      'search-free',
+      'search-certified-copy-fee',
+      'search-missing-image-fee',
+      'cs-fee-once-per-period',
+      'formation-time-online',
+      'formation-time-post',
+      'idv-route-one-login-cost',
+      'cs-late-fine',
+      'dormant-excluded-transactions',
+      'tm-fee-first-class',
+    ]}
+  />
+</Base>
+
+<style>
+  .fee-note {
+    display: block;
+    margin-top: 0.2rem;
+  }
+  .fee {
+    font-family: var(--display);
+    font-size: 1.25rem;
+    white-space: nowrap;
+    width: 7rem;
+  }
+</style>

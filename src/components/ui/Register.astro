@@ -1,0 +1,153 @@
+---
+// The register column: the visitor's name in its alphabetical place among real
+// companies from the index. Rows are rendered by lib/register-view so the
+// homepage script can redraw them identically as the visitor types.
+import { registerOffset, renderRegister, type RegisterRow, type RegisterState } from '../../lib/register-view';
+
+interface Props {
+  rows: RegisterRow[];
+  you: { name: string; key: string };
+  state: RegisterState;
+  caption: string;
+  // Element id, for pages that update the column as the visitor types.
+  id?: string;
+  size?: 'large' | 'small';
+}
+
+const { rows, you, state, caption, id, size = 'large' } = Astro.props;
+const centre = size === 'large' ? 236 : 128;
+---
+
+<figure class:list={['reg', `reg--${size}`]} id={id} data-centre={centre} data-state={state}>
+  <figcaption class="reg__caption">{caption}</figcaption>
+  <div class="reg__window">
+    <ol class="reg__list" style={`transform: translateY(${registerOffset(rows, you.key, centre)}px)`} set:html={renderRegister(rows, you, state)} />
+  </div>
+</figure>
+
+<script>
+  import { centreRegister } from '../../lib/register-view';
+
+  const figures = document.querySelectorAll<HTMLElement>('.reg');
+  const centreAll = () => figures.forEach((f) => centreRegister(f));
+  centreAll();
+  document.fonts.ready.then(centreAll);
+  new ResizeObserver(centreAll).observe(document.documentElement);
+</script>
+
+<style>
+  .reg {
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .reg__caption {
+    font-size: 0.85rem;
+    color: var(--ink-2);
+  }
+  .reg__window {
+    position: relative;
+    height: 472px;
+    overflow: hidden;
+    border-left: 1px solid var(--line);
+    -webkit-mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent);
+    mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent);
+  }
+  .reg--small .reg__window {
+    height: 256px;
+  }
+  .reg__list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1.5rem;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .reg :global(.reg__row) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    column-gap: 1rem;
+    align-content: center;
+    height: 44px;
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+    line-height: 1.25;
+  }
+  .reg :global(.reg__key) {
+    grid-column: 1;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .reg :global(.reg__name) {
+    grid-column: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .reg :global(.reg__num),
+  .reg :global(.reg__label) {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+  }
+  /* A company Companies House treats as the same name */
+  .reg :global(.reg__row--same) {
+    color: var(--clash);
+    font-weight: 600;
+  }
+  /* The visitor's name */
+  .reg :global(.reg__row--you) {
+    height: 76px;
+    margin: 8px 0;
+    padding: 0 1.1rem;
+    border-radius: 12px;
+    background: var(--cobalt-fill);
+    color: var(--on-cobalt);
+    box-shadow: 0 18px 32px -20px var(--shadow-cobalt);
+    transition: background-color 0.3s;
+  }
+  .reg :global(.reg__row--you .reg__name) {
+    font-family: var(--display);
+    font-size: 1.45rem;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  .reg :global(.reg__row--you .reg__key) {
+    opacity: 0.75;
+  }
+  .reg :global(.reg__row--you .reg__label) {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  .reg :global(.reg__row--you[data-state='taken']) {
+    background: var(--clash-fill);
+    box-shadow: 0 18px 32px -20px rgb(210 43 31 / 0.5);
+  }
+  .reg--small :global(.reg__row--you .reg__name) {
+    font-size: 1.15rem;
+  }
+  @media (max-width: 40rem) {
+    .reg__window {
+      height: 360px;
+    }
+    .reg__list {
+      padding-left: 1rem;
+    }
+    .reg :global(.reg__row--you .reg__name) {
+      font-size: 1.15rem;
+    }
+    .reg :global(.reg__row--you .reg__label) {
+      display: none;
+    }
+  }
+</style>

@@ -1,7 +1,45 @@
 ---
 import Base from '../layouts/Base.astro';
 import RelatedPages from '../components/RelatedPages.astro';
-import { articleSchema } from '../lib/schema';
+import { articleSchema, faqSchema } from '../lib/schema';
+import Faq from '../components/Faq.astro';
+import { getEntry } from 'astro:content';
+import { formatFactValue } from '../lib/facts';
+
+const value = async (id: string) => formatFactValue((await getEntry('facts', id))!.data);
+const [directFee, paperFee, tideFee, onlineTime] = await Promise.all([
+  value('ch-fee-incorporation-online'),
+  value('ch-fee-incorporation-paper'),
+  value('provider-tide-registration'),
+  value('formation-time-online'),
+]);
+
+const title = 'How to register a limited company in the UK (step by step)';
+const description =
+  'How to set up a limited company in the UK: the name, registered office, directors, shareholders, identity verification, cost and timings.';
+
+const faq = [
+  {
+    q: 'How much does it cost to register a limited company?',
+    a: `Registering directly with Companies House costs ${directFee} online or ${paperFee} by post. Some providers file for you for less or include extras: Tide charges ${tideFee} and includes a business account. See every fee on our <a href="/companies-house-fees/">Companies House fees</a> page.`,
+  },
+  {
+    q: 'How long does it take?',
+    a: `Online registration with Companies House is ${onlineTime}. Postal applications take much longer, so most people register online.`,
+  },
+  {
+    q: 'Can I register a company if I live outside the UK?',
+    a: 'Yes. Directors don\'t have to live in the UK, but the company needs a registered office address in the UK, and every director must verify their identity. People outside the UK can verify through an authorised agent (ACSP).',
+  },
+  {
+    q: 'Do I need an accountant to register?',
+    a: 'No. You can register online with Companies House yourself. Many people still use an accountant or a formation provider for the ongoing filings, such as annual accounts and the confirmation statement.',
+  },
+  {
+    q: 'Can I change the company name later?',
+    a: 'Yes, by special resolution of the shareholders and a filing with Companies House. See <a href="/change-company-name/">how to change a company name</a>.',
+  },
+];
 import Fact from '../components/Fact.astro';
 import GuideSources from '../components/GuideSources.astro';
 import NameCheckForm from '../components/NameCheckForm.astro';
@@ -9,22 +47,34 @@ import RegistrationOptions from '../components/RegistrationOptions.astro';
 ---
 
 <Base
-  title="How to register a limited company in the UK (step by step)"
-  description="What you need to register a UK private limited company: name, registered office, directors, shareholders, identity verification, cost and timings."
+  title={title}
+  description={description}
   ogType="article"
   breadcrumbs={[{ name: 'Guides', href: '/guides/' }, { name: 'Register a limited company', href: '/register-a-limited-company/' }]}
-  schema={[articleSchema({ title: "How to register a limited company in the UK (step by step)", description: "What you need to register a UK private limited company: name, registered office, directors, shareholders, identity verification, cost and timings.", href: '/register-a-limited-company/', updated: '2026-10-31' })]}
+  schema={[articleSchema({ title, description, href: '/register-a-limited-company/', updated: '2026-11-01' }), faqSchema(faq)]}
 >
   <h1>How to register a limited company</h1>
   <p>
     Registering a private limited company with Companies House costs <Fact id="ch-fee-incorporation-online" /> online
-    and is <Fact id="formation-time-online" />. Here's what you need before you start.
+    and is <Fact id="formation-time-online" />. This guide covers how to set up a limited company step by step: what to
+    prepare, how to file, and what to do in the first year.
   </p>
+
+  <h2>Have this ready before you start</h2>
+  <ul class="checklist">
+    <li>A name that isn't the "same as" an existing company's, ending in "Limited" or "Ltd".</li>
+    <li>A registered office address in the UK, and a registered email address.</li>
+    <li>For each director: full name, date of birth, nationality, a service address and their Companies House personal code.</li>
+    <li>For each shareholder: their name and how many shares they'll hold.</li>
+    <li>The people with significant control, and how they control the company.</li>
+    <li>A SIC code that describes what the company will do.</li>
+  </ul>
 
   <h2>1. Choose a name that's available</h2>
   <p>
     The name can't be the "same as" an existing company's, and it usually ends in "Limited" or "Ltd". See
-    <a href="/company-name-rules/">how the "same as" rules work</a>, or check a name now:
+    <a href="/company-name-rules/">how the "same as" rules work</a>, or check a name now. You can still
+    <a href="/change-company-name/">change the name later</a> if you need to.
   </p>
   <NameCheckForm />
 
@@ -46,8 +96,8 @@ import RegistrationOptions from '../components/RegistrationOptions.astro';
   <h2>5. Verify your identity</h2>
   <p>
     Since <Fact id="idv-mandatory-start" />, identity verification has been a legal requirement. New directors provide
-    their Companies House personal code when the company is registered. Read our
-    <a href="/companies-house-identity-verification/">identity verification guide</a>.
+    their <a href="/companies-house-personal-code/">Companies House personal code</a> when the company is registered. Read
+    our <a href="/companies-house-identity-verification/">identity verification guide</a>.
   </p>
 
   <h2>6. Pick a SIC code and agree the company's rules</h2>
@@ -65,6 +115,29 @@ import RegistrationOptions from '../components/RegistrationOptions.astro';
 
   <h2>Ways to register, compared</h2>
   <RegistrationOptions />
+
+  <h2>After you register</h2>
+  <ul>
+    <li>
+      <strong>Open a business bank account</strong> in the company's name, so its money stays separate from yours. Compare
+      <a href="/business-bank-account-for-limited-company/">business accounts for a new limited company</a>.
+    </li>
+    <li>
+      <strong>Diary your first confirmation statement.</strong> Its review period ends
+      <Fact id="cs-review-period" />, and it's due within <Fact id="cs-due-date" /> after that. See
+      <a href="/confirmation-statement/">confirmation statements</a>.
+    </li>
+    <li>
+      <strong>Keep the registered office and directors' details up to date</strong> with Companies House, and check the
+      company's deadlines any time with the <a href="/company-search/">company search</a>.
+    </li>
+    <li>
+      <strong>Protect the name</strong>: a company name doesn't stop someone else using it as a brand, so consider a
+      <a href="/trade-mark-search/">trade mark search</a> and buy the matching <a href="/domain-name-checker/">domain names</a>.
+    </li>
+  </ul>
+
+  <Faq items={faq} />
 
   <RelatedPages hrefs={['/', '/companies-house-identity-verification/', '/registered-office-address/', '/trade-mark-search/']} />
 
@@ -84,6 +157,9 @@ import RegistrationOptions from '../components/RegistrationOptions.astro';
       'idv-mandatory-start',
       'provider-tide-registration',
       'provider-anna-registration',
+      'provider-anna-registration-standard',
+      'cs-review-period',
+      'cs-due-date',
     ]}
   />
 </Base>

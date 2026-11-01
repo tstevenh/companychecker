@@ -1,5 +1,6 @@
 ---
 import { pageByHref } from '../data/pages';
+import Icon from './ui/Icon.astro';
 
 interface Props {
   hrefs: string[];
@@ -12,12 +13,15 @@ const pages = hrefs.map(pageByHref);
 
 <section class="related" aria-labelledby="related-heading">
   <h2 id="related-heading">{heading}</h2>
-  <ul>
+  <ul class="related__list">
     {
       pages.map((page) => (
         <li>
-          <a href={page.href}>{page.title}</a>
-          <span class="muted">{page.description}</span>
+          <a href={page.href}>
+            <span class="related__title">{page.title}</span>
+            <span class="related__desc">{page.description}</span>
+            <Icon name="arrowUpRight" class="related__icon" />
+          </a>
         </li>
       ))
     }
@@ -26,22 +30,55 @@ const pages = hrefs.map(pageByHref);
 
 <style>
   .related {
-    margin-top: 2.5rem;
+    margin-top: 4rem;
   }
-  .related ul {
+  .related__list {
     list-style: none;
     padding: 0;
+    margin: 1.5rem 0 0;
     display: grid;
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+    column-gap: 2.5rem;
+    border-top: 1px solid var(--ink);
   }
-  .related li {
+  .related__list li {
+    margin: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .related__list a {
+    position: relative;
     display: grid;
-    gap: 0.1rem;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid var(--line);
-    border-radius: 8px;
+    gap: 0.25rem;
+    padding: 1.15rem 2.25rem 1.2rem 0;
+    color: inherit;
+    text-decoration: none;
   }
-  .related a {
-    font-weight: 600;
+  .related__title {
+    font-family: var(--display);
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    transition: color 0.2s;
+  }
+  .related__desc {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+  }
+  .related__list :global(.related__icon) {
+    position: absolute;
+    right: 0.25rem;
+    top: 1.35rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--ink-3);
+    transition: transform 0.25s var(--ease-out), color 0.2s;
+  }
+  .related__list a:hover .related__title {
+    color: var(--cobalt);
+  }
+  .related__list a:hover :global(.related__icon) {
+    color: var(--cobalt);
+    transform: translate(2px, -2px);
   }
 </style>

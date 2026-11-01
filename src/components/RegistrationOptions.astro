@@ -1,32 +1,36 @@
 ---
 import { getEntry } from 'astro:content';
 import { formatFactValue } from '../lib/facts';
+import { PROVIDER_REL, REGISTER_LINKS } from '../data/providers';
 
 // Prices come from the fact database, so they always carry a source.
 const companiesHouse = (await getEntry('facts', 'ch-fee-incorporation-online'))!.data;
 const tide = (await getEntry('facts', 'provider-tide-registration'))!.data;
-const anna = (await getEntry('facts', 'provider-anna-registration'))!.data;
+const anna = (await getEntry('facts', 'provider-anna-registration-standard'))!.data;
 
 const options = [
   {
     name: 'Companies House (direct)',
     price: formatFactValue(companiesHouse),
     includes: 'Registration only. You set up a business account separately.',
-    href: 'https://www.gov.uk/limited-company-formation/register-your-company',
+    href: REGISTER_LINKS.companiesHouse,
+    rel: 'nofollow noopener',
     factId: companiesHouse.id,
   },
   {
     name: 'Tide',
     price: formatFactValue(tide),
     includes: tide.notes ?? '',
-    href: 'https://www.tide.co/company-registration/',
+    href: REGISTER_LINKS.tide,
+    rel: PROVIDER_REL,
     factId: tide.id,
   },
   {
     name: 'ANNA',
-    price: `${formatFactValue(anna)}*`,
-    includes: anna.notes ?? '',
-    href: 'https://anna.money/register-a-company/london/',
+    price: formatFactValue(anna),
+    includes: "Free instead with ANNA's paid Enhanced or Total Support plans. ANNA is an e-money institution, not a bank.",
+    href: REGISTER_LINKS.anna,
+    rel: PROVIDER_REL,
     factId: anna.id,
   },
 ];
@@ -46,7 +50,7 @@ const options = [
         options.map((option) => (
           <tr>
             <td>
-              <a href={option.href} rel="nofollow noopener" target="_blank">
+              <a href={option.href} rel={option.rel} target="_blank">
                 {option.name}
               </a>
             </td>
@@ -63,19 +67,58 @@ const options = [
   </table>
 </div>
 <p class="muted small">
-  * Conditions apply; see the note. Prices are from each provider's own page; follow a price to see its source and
-  check date.
+  Prices are from each provider's own page; follow a price to see its source and check date.
 </p>
 
 <style>
-  .table-wrap {
-    overflow-x: auto;
+  td:first-child a {
+    font-weight: 600;
   }
   .price {
-    color: inherit;
-    text-decoration: underline dotted;
+    font-family: var(--display);
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--ink);
+    text-decoration: underline dotted var(--ink-3);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
   }
-  .small {
-    font-size: 0.85rem;
+  td {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  /* Narrow: each route as a block, name and price on one line */
+  @media (max-width: 40rem) {
+    table,
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    tr {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      column-gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    td {
+      padding: 0;
+      border: 0;
+    }
+    td:last-child {
+      grid-column: 1 / -1;
+      margin-top: 0.5rem;
+      color: var(--ink-2);
+    }
   }
 </style>

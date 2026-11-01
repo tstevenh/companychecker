@@ -7,9 +7,9 @@ import RelatedPages from '../components/RelatedPages.astro';
 import Src from '../components/Src.astro';
 import { articleSchema, faqSchema } from '../lib/schema';
 
-const title = 'Companies House identity verification: deadlines and ID';
+const title = 'Companies House ID verification: deadlines and personal code';
 const description =
-  'Who must verify their identity with Companies House, your deadline as a director or PSC, accepted ID, One Login, the Post Office route, ACSPs and penalties.';
+  'Companies House ID verification explained: who must verify, your deadline as a director or PSC, accepted ID, One Login, the Post Office, ACSPs and penalties.';
 
 const faq = [
   {
@@ -152,13 +152,12 @@ const faq = [
     endorse the agents on it.<Src id="iv-acsp-official-list" />
   </p>
 
-  <h2 id="code">Your personal code</h2>
+  <h2 id="code">Your Companies House personal code</h2>
   <p>
     Once verified, you get a Companies House personal code: an <Fact id="iv-personal-code-length" /> code that belongs to
-    you, not to a company.<Src id="iv-personal-code-length" /> You use the same code every time you need to show you're
-    verified<Src id="iv-personal-code-reuse" />, for example on a confirmation statement or when appointed as a director.
-    To find it, sign in to Companies House and go to "Manage account".<Src id="iv-personal-code-where" /> Keep it as secure
-    as your tax reference.
+    you, not to a company, and that you reuse for every company.<Src id="iv-personal-code-reuse" /> Our
+    <a href="/companies-house-personal-code/">personal code guide</a> covers where to find it and exactly when directors and
+    PSCs must give it.
   </p>
 
   <h2 id="penalties">If you don't verify</h2>
@@ -185,22 +184,3 @@ const faq = [
     ]}
   />
 </Base>
-
-<style>
-  .lede {
-    font-size: 1.1rem;
-  }
-  .toc {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    margin: 1.5rem 0;
-  }
-  .toc ol {
-    margin: 0.4rem 0 0;
-    padding-left: 1.2rem;
-  }
-  li {
-    margin: 0.3rem 0;
-  }
-</style>

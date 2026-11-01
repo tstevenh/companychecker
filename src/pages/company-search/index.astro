@@ -7,9 +7,9 @@ import Src from '../../components/Src.astro';
 import GuideSources from '../../components/GuideSources.astro';
 import { faqSchema, toolSchema } from '../../lib/schema';
 
-const title = 'UK company search: look up any company by name or number';
+const title = 'UK company check: search any company by name or number';
 const description =
-  'Free UK company search. Find any live company by name or number and see its status, incorporation date and next confirmation statement and accounts dates.';
+  'Free UK company check. Search any live company by name or number and see its status, incorporation date and next confirmation statement and accounts dates.';
 
 const faq = [
   {
@@ -41,10 +41,10 @@ const faq = [
   breadcrumbs={[{ name: 'Company search', href: '/company-search/' }]}
   schema={[toolSchema({ name: 'UK company search', description, href: '/company-search/' }), faqSchema(faq)]}
 >
-  <h1>UK company search</h1>
+  <h1>UK company search and company check</h1>
   <p class="lede">
-    Look up any live UK company by name or company number. See whether it's active, when it was set up, and when its next
-    filings are due.
+    Run a free company check on any live UK company by name or company number. See whether it's active, when it was set
+    up, and when its next filings are due.
   </p>
 
   <CompanySearchForm />
@@ -92,6 +92,7 @@ const faq = [
   <ul>
     <li><strong>Before you trade with it</strong>: confirm it exists, is active and isn't being struck off.</li>
     <li><strong>Before you choose a name</strong>: see which companies already use similar names. For a yes-or-no answer, use the <a href="/">name checker</a>.</li>
+    <li><strong>Before you pay an invoice</strong>: check the supplier's VAT number is valid with the <a href="/vat-number-checker/">VAT number checker</a>.</li>
     <li><strong>For your own company</strong>: check your next confirmation statement and accounts dates.</li>
   </ul>
 
@@ -103,12 +104,3 @@ const faq = [
     factIds={['search-service', 'search-free', 'search-free-details', 'search-disqualified', 'search-other-tools', 'search-email-alerts', 'search-accuracy-disclaimer', 'disclosure-company-number']}
   />
 </Base>
-
-<style>
-  .lede {
-    font-size: 1.1rem;
-  }
-  li {
-    margin: 0.35rem 0;
-  }
-</style>

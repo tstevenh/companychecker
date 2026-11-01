@@ -1,0 +1,55 @@
+---
+// A name with the words Companies House ignores struck out, followed by the
+// key it compares.
+import { normalizeCompanyName } from '../../lib/company-name/normalize';
+import { reductionParts } from '../../lib/company-name/reduction';
+
+interface Props {
+  name: string;
+  // Element ids, for pages that update the readout as the visitor types.
+  partsId?: string;
+  keyId?: string;
+  size?: 'normal' | 'large';
+}
+
+const { name, partsId, keyId, size = 'normal' } = Astro.props;
+const parts = reductionParts(name);
+const key = normalizeCompanyName(name);
+---
+
+<p class:list={['reduction', `reduction--${size}`]}>
+  <span class="reduction__parts" id={partsId}>{parts.map((p) => (p.ignored ? <s>{p.text}</s> : p.text))}</span>
+  <span class="reduction__label">Compared as</span>
+  <span class="key" id={keyId} data-empty={key ? undefined : ''}>{key || 'nothing left'}</span>
+</p>
+
+<style>
+  .reduction {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.6rem;
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-2);
+  }
+  .reduction .key {
+    font-size: 0.85rem;
+  }
+  .reduction__parts {
+    flex-basis: 100%;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .reduction--large .reduction__parts {
+    font-family: var(--display);
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .reduction :global(s) {
+    color: var(--ink-3);
+    text-decoration-thickness: 1.5px;
+    text-decoration-color: var(--ink-3);
+  }
+</style>

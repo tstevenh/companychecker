@@ -23,6 +23,7 @@ const facts = defineCollection({
       'vat-number',
       'trade-marks',
       'domains',
+      'business-banking',
     ]),
     label: z.string().min(1),
     value: z.union([z.number(), z.string().min(1)]),
@@ -33,6 +34,9 @@ const facts = defineCollection({
     source_url: z.string().url(),
     source_title: z.string().min(1),
     checked_on: z.coerce.date(),
+    // Kept for building the site (API limits, implementation notes) but not
+    // shown to readers: hidden from /sources/ and refused by <Fact> and <Src>.
+    internal: z.boolean().optional(),
   }),
 });
 

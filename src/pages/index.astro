@@ -2,20 +2,51 @@
 import Base from '../layouts/Base.astro';
 import Faq from '../components/Faq.astro';
 import Fact from '../components/Fact.astro';
-import NameCheckForm from '../components/NameCheckForm.astro';
 import RelatedPages from '../components/RelatedPages.astro';
+import Icon from '../components/ui/Icon.astro';
+import Reduction from '../components/ui/Reduction.astro';
+import Register from '../components/ui/Register.astro';
 import { normalizeCompanyName } from '../lib/company-name/normalize';
+import { reductionParts } from '../lib/company-name/reduction';
 import { faqSchema, toolSchema } from '../lib/schema';
 import { getEntry } from 'astro:content';
 import { formatFactValue } from '../lib/facts';
 
 const incorporationFee = formatFactValue((await getEntry('facts', 'ch-fee-incorporation-online'))!.data);
 
-const title = 'Company Name Checker: is your UK company name available?';
+const title = 'Company Name Checker UK: check company name availability';
 const description =
-  "Free UK company name checker. See if a limited company name is available under the Companies House 'same as' rules, plus similar names and ways to register.";
+  "Free UK company name checker. Check company name availability under the Companies House 'same as' rules, with similar names and ways to register.";
 
-const examples = ['Acme UK Ltd', 'The Acme Company Limited', 'A.C.M.E. Ltd'].map((name) => ({ name, key: normalizeCompanyName(name) }));
+// Shown until the visitor types.
+const placeholderName = 'Your Company Ltd';
+const placeholderKey = normalizeCompanyName(placeholderName);
+
+const examples = ['Acme UK Ltd', 'The Acme Company Limited', 'A.C.M.E. Ltd'].map((name) => ({
+  name,
+  parts: reductionParts(name),
+  key: normalizeCompanyName(name),
+}));
+
+// Illustrations of the two results. Example names, not real records.
+const exampleFree = {
+  you: { name: 'Copper Kettle Bakery Ltd', key: 'COPPERKETTLEBAKERY' },
+  rows: [
+    { key: 'COPPERKETTLE', name: 'COPPER KETTLE LTD' },
+    { key: 'COPPERKETTLEANDCO', name: 'COPPER KETTLE AND CO LIMITED' },
+    { key: 'COPPERKETTLECAFE', name: 'COPPER KETTLE CAFE LTD' },
+    { key: 'COPPERKETTLEHOME', name: 'COPPER KETTLE HOMEWARES LIMITED' },
+  ],
+};
+const exampleTaken = {
+  you: { name: 'The Kettle Bakery Ltd', key: 'KETTLEBAKERY' },
+  rows: [
+    { key: 'KETTLEANDCO', name: 'KETTLE & CO LIMITED' },
+    { key: 'KETTLEBAKERY', name: 'KETTLE BAKERY LIMITED' },
+    { key: 'KETTLEBARN', name: 'KETTLE BARN LTD' },
+    { key: 'KETTLEBREW', name: 'KETTLE BREW LTD' },
+  ],
+};
 
 const faq = [
   {
@@ -40,71 +71,363 @@ const faq = [
   },
   {
     q: 'How much does it cost to register a company?',
-    a: `Registering directly with Companies House costs ${incorporationFee} online. Some providers register the company for you and include extras such as a business account; see <a href="/register-a-limited-company/">how to register a limited company</a> for the steps and a comparison.`,
+    a: `Registering directly with Companies House costs ${incorporationFee} online. Some providers register the company for you and include extras such as a business account; see <a href="/register-a-limited-company/">how to register a limited company</a> for the steps and a comparison, and <a href="/companies-house-fees/">Companies House fees</a> for every other fee.`,
   },
 ];
 ---
 
-<Base title={title} description={description} schema={[toolSchema({ name: 'Company name checker', description, href: '/' }), faqSchema(faq)]}>
-  <h1>Is your UK company name available?</h1>
-  <p class="lede">
-    Check a name against every live UK company. We apply the same rules Companies House uses, so you find out whether
-    it would be accepted, not just whether the exact spelling is free.
-  </p>
+<Base
+  title={title}
+  description={description}
+  layout="wide"
+  schema={[toolSchema({ name: 'Company name checker', description, href: '/' }), faqSchema(faq)]}
+>
+  <section class="hero frame" aria-labelledby="hero-heading">
+    <div class="hero__copy">
+      <h1 id="hero-heading">Is your UK company name available?</h1>
+      <p class="lede">
+        Our company name checker shows where your name would sit on the register of every live UK company, and whether
+        anyone's already there.
+      </p>
+      <form class="field hero__form" action="/check/" method="get" role="search">
+        <label for="company-name">Company name</label>
+        <div class="row">
+          <input
+            id="company-name"
+            name="name"
+            type="text"
+            maxlength="160"
+            required
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Copper Kettle Bakery Ltd"
+          />
+          <button class="button" type="submit">Check name<Icon name="arrowRight" /></button>
+        </div>
+      </form>
+      <div class="hero__reading">
+        <Reduction name={placeholderName} partsId="reading-parts" keyId="reading-key" />
+      </div>
+    </div>
+    <div class="hero__register">
+      <Register
+        id="hero-register"
+        rows={[]}
+        you={{ name: placeholderName, key: placeholderKey }}
+        state="pending"
+        caption="The register of live UK companies, A to Z"
+      />
+    </div>
+  </section>
 
-  <NameCheckForm autofocus />
+  <section class="same frame" aria-labelledby="same-heading">
+    <div class="same__text">
+      <h2 id="same-heading">Why “available” is more than an exact match</h2>
+      <p>
+        Companies House doesn't just look for the same spelling. It strips out the parts of a name that don't make it
+        different, then compares what's left. These three names all reduce to the same thing, so only one of them can
+        exist.
+      </p>
+      <p class="muted">
+        A simple search for “Acme UK Ltd” would miss “The Acme Company Limited”. Our checker applies all the rules from
+        the 2015 Names Regulations, explained step by step in <a href="/company-name-rules/">company name rules</a>.
+      </p>
+    </div>
+    <ul class="same__list">
+      {
+        examples.map((e) => (
+          <li>
+            <span class="same__name">{e.parts.map((p) => (p.ignored ? <s>{p.text}</s> : p.text))}</span>
+            <span class="visually-hidden">compares as</span>
+            <span class="key">{e.key}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 
-  <h2>What you get</h2>
-  <ul>
-    <li><strong>A clear answer:</strong> available, or taken, with the companies it clashes with and a link to each on Companies House.</li>
-    <li><strong>The reason:</strong> the reduced form Companies House compares, so you can see why two names count as the same.</li>
-    <li><strong>Similar names</strong> already registered, which could still lead to a "too like" objection.</li>
-    <li><strong>Next steps</strong> when the name is free: the ways to register it, plus trade mark and domain checks.</li>
-  </ul>
+  <section class="outcomes frame" aria-labelledby="outcomes-heading">
+    <h2 id="outcomes-heading">A clear answer, either way</h2>
+    <div class="outcomes__pair">
+      <div>
+        <Register rows={exampleFree.rows} you={exampleFree.you} state="available" caption="If no company has the same name" size="small" />
+        <p>
+          The reduced form Companies House compares, the names closest to yours that could still draw a “too like”
+          objection, and the ways to register, plus trade mark and domain checks.
+        </p>
+      </div>
+      <div>
+        <Register rows={exampleTaken.rows} you={exampleTaken.you} state="taken" caption="If a company already has it" size="small" />
+        <p>
+          The companies it clashes with, each linked to its Companies House record, the reason the names count as the
+          same, and ideas for a name that isn't taken.
+        </p>
+      </div>
+    </div>
+    <p class="muted small">Both columns use example names to illustrate the two results.</p>
+  </section>
 
-  <h2>Why "available" is more than an exact match</h2>
-  <p>
-    Companies House doesn't just look for the same spelling. It strips out the parts of a name that don't make it
-    different, then compares what's left. These three names all reduce to the same thing, so only one of them can exist:
-  </p>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th scope="col">Name</th><th scope="col">What Companies House compares</th></tr>
-      </thead>
-      <tbody>
-        {examples.map((e) => (
-          <tr><td>{e.name}</td><td><code>{e.key}</code></td></tr>
-        ))}
-      </tbody>
-    </table>
+  <section class="route frame" aria-labelledby="route-heading">
+    <h2 id="route-heading">Before you register a name</h2>
+    <ol class="route__steps">
+      <li>
+        <h3>Check it here</h3>
+        <p>Then read through the similar names on the result.</p>
+      </li>
+      <li>
+        <h3>Check the domains</h3>
+        <p>See if the web addresses you'd want are free with the <a href="/domain-name-checker/">domain name checker</a>.</p>
+      </li>
+      <li>
+        <h3>Search trade marks</h3>
+        <p>Make sure nobody owns the name as a brand: see <a href="/trade-mark-search/">UK trade mark search</a>.</p>
+      </li>
+      <li>
+        <h3>Register</h3>
+        <p>
+          Online with Companies House it costs <Fact id="ch-fee-incorporation-online" /> and is
+          <Fact id="formation-time-online" />. See <a href="/register-a-limited-company/">how to register a limited company</a>,
+          then compare <a href="/business-bank-account-for-limited-company/">business bank accounts</a>.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <div class="frame">
+    <Faq items={faq} split />
+    <RelatedPages heading="More free tools" hrefs={['/business-name-generator/', '/company-search/', '/domain-name-checker/', '/vat-number-checker/']} />
   </div>
-  <p>
-    A simple search for "Acme UK Ltd" would miss "The Acme Company Limited". Our checker applies all the rules from the
-    2015 Names Regulations, explained step by step in <a href="/company-name-rules/">company name rules</a>.
-  </p>
-
-  <h2>Before you register a name</h2>
-  <ol>
-    <li><strong>Check it here</strong> and read through the similar names.</li>
-    <li><strong>Check the domains</strong> you'd want with the <a href="/domain-name-checker/">domain name checker</a>.</li>
-    <li><strong>Search trade marks</strong>: see <a href="/trade-mark-search/">UK trade mark search</a>.</li>
-    <li>
-      <strong>Register</strong>: online with Companies House it costs <Fact id="ch-fee-incorporation-online" /> and is
-      <Fact id="formation-time-online" />. See <a href="/register-a-limited-company/">how to register a limited company</a>.
-    </li>
-  </ol>
-
-  <Faq items={faq} />
-
-  <RelatedPages heading="More free tools" hrefs={['/business-name-generator/', '/company-search/', '/domain-name-checker/', '/vat-number-checker/']} />
 </Base>
 
-<style>
-  .lede {
-    font-size: 1.1rem;
+<script>
+  import { normalizeCompanyName } from '../lib/company-name/normalize';
+  import { reductionParts } from '../lib/company-name/reduction';
+  import { centreRegister, renderRegister, type RegisterRow } from '../lib/register-view';
+
+  // As the visitor types: strike the ignored words, then place the name in the
+  // register among its real neighbours from the index.
+  const input = document.getElementById('company-name') as HTMLInputElement | null;
+  const parts = document.getElementById('reading-parts');
+  const key = document.getElementById('reading-key');
+  const figure = document.getElementById('hero-register');
+  const list = figure?.querySelector<HTMLElement>('.reg__list');
+  const caption = figure?.querySelector<HTMLElement>('.reg__caption');
+
+  if (input && parts && key && figure && list && caption) {
+    const placeholder = 'Your Company Ltd';
+    const defaultCaption = caption.textContent ?? '';
+    const cache = new Map<string, { rows: RegisterRow[]; taken: boolean } | null>();
+    let rows: RegisterRow[] = [];
+    let taken = false;
+    let timer: number | undefined;
+    let controller: AbortController | undefined;
+
+    const draw = (name: string, reduced: string) => {
+      list.innerHTML = renderRegister(rows, { name, key: reduced }, taken ? 'taken' : 'pending');
+      centreRegister(figure);
+    };
+
+    const lookUp = async (name: string, reduced: string) => {
+      if (!cache.has(reduced)) {
+        controller?.abort();
+        controller = new AbortController();
+        try {
+          const res = await fetch(`/api/register/?name=${encodeURIComponent(name)}`, { signal: controller.signal });
+          const data = res.ok ? await res.json() : null;
+          cache.set(
+            reduced,
+            data
+              ? {
+                  rows: [...data.nearby, ...data.exact].map((r: RegisterRow) => ({ key: r.key, name: r.name, number: r.number })),
+                  taken: data.exact.length > 0,
+                }
+              : null,
+          );
+        } catch (error) {
+          if ((error as Error).name === 'AbortError') return;
+          cache.set(reduced, null);
+        }
+      }
+      const hit = cache.get(reduced);
+      if (normalizeCompanyName(input.value.trim() || placeholder) !== reduced) return;
+      // The placeholder is only an example, so it never shows as taken.
+      const typed = input.value.trim() !== '';
+      rows = (hit?.rows ?? []).filter((r) => typed || r.key !== reduced);
+      taken = typed && (hit?.taken ?? false);
+      caption.textContent = hit ? defaultCaption : 'The register is unavailable right now. Press Check name for a full check.';
+      draw(name, reduced);
+    };
+
+    const render = () => {
+      const name = input.value.replace(/\s+/g, ' ').trim() || placeholder;
+      const reduced = normalizeCompanyName(name);
+      parts.replaceChildren(
+        ...reductionParts(name).map((p) => {
+          if (!p.ignored) return document.createTextNode(p.text);
+          const s = document.createElement('s');
+          s.textContent = p.text;
+          return s;
+        }),
+      );
+      key.textContent = reduced || 'nothing left';
+      key.toggleAttribute('data-empty', !reduced);
+      // Move the name now; neighbours follow once the index answers.
+      taken = false;
+      draw(name, reduced);
+      window.clearTimeout(timer);
+      if (reduced) timer = window.setTimeout(() => lookUp(name, reduced), 220);
+    };
+
+    input.addEventListener('input', render);
+    render();
   }
-  li {
-    margin: 0.35rem 0;
+</script>
+
+<style>
+  /* Hero: copy and field on the left, the register on the right */
+  .hero {
+    display: grid;
+    gap: 3rem 4.5rem;
+    padding-top: clamp(2.25rem, 1rem + 4vw, 4.5rem);
+    padding-bottom: clamp(3.5rem, 2rem + 4vw, 6rem);
+    align-items: center;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 1.3rem + 4.6vw, 4.9rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    margin-bottom: 1.25rem;
+  }
+  .hero .lede {
+    margin-bottom: 2.5rem;
+  }
+  .hero__form {
+    margin: 0;
+  }
+  .hero__reading {
+    margin-top: 1.5rem;
+    min-height: 4.5rem;
+  }
+  @media (min-width: 62rem) {
+    .hero {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    }
+  }
+
+  /* Same-as demonstration */
+  .same {
+    display: grid;
+    gap: 2.5rem 5rem;
+    padding-block: clamp(3.5rem, 2rem + 4vw, 6rem);
+    border-top: 1px solid var(--line);
+  }
+  .same__text h2 {
+    margin-top: 0;
+  }
+  .same__text p {
+    max-width: 36em;
+  }
+  .same__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-top: 1px solid var(--ink);
+    align-self: center;
+  }
+  .same__list li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .same__name {
+    font-family: var(--display);
+    font-size: clamp(1.45rem, 1.15rem + 1.1vw, 2.1rem);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+  .same__name s {
+    color: var(--ink-3);
+    text-decoration-thickness: 1.5px;
+  }
+  @media (min-width: 62rem) {
+    .same {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    }
+  }
+
+  /* The two results */
+  .outcomes {
+    padding-block: clamp(3.5rem, 2rem + 4vw, 6rem) 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .outcomes h2 {
+    margin-top: 0;
+  }
+  .outcomes__pair {
+    display: grid;
+    gap: 3rem 4rem;
+    margin: 2.25rem 0 1.5rem;
+  }
+  .outcomes__pair p {
+    margin: 1.25rem 0 0;
+    color: var(--ink-2);
+    max-width: 32em;
+  }
+  @media (min-width: 62rem) {
+    .outcomes__pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Route to registering */
+  .route {
+    padding-block: clamp(3.5rem, 2rem + 4vw, 6rem) 0;
+  }
+  .route h2 {
+    margin-top: 0;
+  }
+  .route__steps {
+    list-style: none;
+    counter-reset: step;
+    padding: 0;
+    margin: 2.25rem 0 0;
+    display: grid;
+    gap: 0 2.5rem;
+  }
+  .route__steps li {
+    counter-increment: step;
+    margin: 0;
+    padding: 1.25rem 0 1.5rem;
+    border-top: 1px solid var(--ink);
+  }
+  .route__steps li::before {
+    content: counter(step, decimal-leading-zero);
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--cobalt);
+    margin-bottom: 0.9rem;
+  }
+  .route__steps h3 {
+    margin: 0 0 0.35rem;
+  }
+  .route__steps p {
+    margin: 0;
+    color: var(--ink-2);
+  }
+  @media (min-width: 48rem) {
+    .route__steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 62rem) {
+    .route__steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 </style>
