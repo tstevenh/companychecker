@@ -7,7 +7,7 @@ import RelatedPages from '../components/RelatedPages.astro';
 import Src from '../components/Src.astro';
 import Icon from '../components/ui/Icon.astro';
 import { articleSchema, faqSchema } from '../lib/schema';
-import { BANK_LINKS, PROVIDER_REL } from '../data/providers';
+import { AFFILIATE_LINKS_ACTIVE, BANK_LINKS, PROVIDER_REL } from '../data/providers';
 import { getEntry } from 'astro:content';
 import { formatFactValue } from '../lib/facts';
 
@@ -115,8 +115,14 @@ const faq = [
     your money is protected, and who can open one. Every figure links to the provider's own page.
   </p>
   <p class="muted small">
-    General information, not financial advice. Check each provider's terms before you apply. Links to Tide and ANNA are
-    <a href="/disclosure/">affiliate links</a>; the others are not.
+    General information, not financial advice. Check each provider's terms before you apply.
+    {
+      AFFILIATE_LINKS_ACTIVE ? (
+        <>Links to Tide and ANNA are <a href="/disclosure/">affiliate links</a>; the others are not.</>
+      ) : (
+        <>No provider pays us to appear here. See <a href="/disclosure/">how we're funded</a>.</>
+      )
+    }
   </p>
 
   <h2>At a glance</h2>

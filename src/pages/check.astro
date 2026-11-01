@@ -8,7 +8,7 @@ import Register from '../components/ui/Register.astro';
 import { runNameCheck } from '../lib/server/runtime.ts';
 import { formatDate, formatFactValue } from '../lib/facts';
 import { reductionParts } from '../lib/company-name/reduction';
-import { PROVIDER_REL, REGISTER_LINKS } from '../data/providers';
+import { AFFILIATE_LINKS_ACTIVE, PROVIDER_REL, REGISTER_LINKS } from '../data/providers';
 import { getEntry } from 'astro:content';
 
 export const prerender = false;
@@ -79,7 +79,8 @@ const registerRows =
                       Register with Tide for {formatFactValue(tide)}<Icon name="arrowUpRight" />
                     </a>
                     <p class="next-step__note">
-                      {tide.notes} <a href={`/sources/#${tide.id}`}>Source</a>. <a href="/disclosure/">Affiliate link</a>.
+                      {tide.notes} <a href={`/sources/#${tide.id}`}>Source</a>.
+                      {AFFILIATE_LINKS_ACTIVE && <a href="/disclosure/">Affiliate link</a>}
                     </p>
                     <p class="next-step__alt">
                       Or <a href={REGISTER_LINKS.companiesHouse} rel="nofollow noopener" target="_blank">register directly with Companies House</a> for {directFee}.

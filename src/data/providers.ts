@@ -6,12 +6,17 @@ export const REGISTER_LINKS = {
   anna: 'https://anna.money/register-a-company/',
 };
 
-// rel for links to a provider we may be paid by. "sponsored" tells search
-// engines the link is commercial.
-export const PROVIDER_REL = 'sponsored nofollow noopener';
+// No affiliate programme has approved the site yet, so no link earns us
+// anything. When one does: swap in its link above, set this to true, and the
+// "Affiliate link" labels, the disclosure page and rel="sponsored" follow.
+export const AFFILIATE_LINKS_ACTIVE = false;
+
+// rel for links to providers such as Tide and ANNA. "sponsored" tells search
+// engines a link is paid, so it is only used once affiliate links are live.
+export const PROVIDER_REL = AFFILIATE_LINKS_ACTIVE ? 'sponsored nofollow noopener' : 'nofollow noopener';
 
 // Business accounts compared on /business-bank-account-for-limited-company/.
-// Tide and ANNA may pay us, so their links carry PROVIDER_REL.
+// Tide and ANNA links carry PROVIDER_REL, as they're the ones that could become affiliate links.
 export const BANK_LINKS = {
   tide: 'https://www.tide.co/business-current-account/',
   anna: 'https://anna.money/business-account/limited-companies/',

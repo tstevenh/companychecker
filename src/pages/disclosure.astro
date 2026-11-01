@@ -1,19 +1,49 @@
 ---
 import Base from '../layouts/Base.astro';
+import { AFFILIATE_LINKS_ACTIVE } from '../data/providers';
 ---
 
 <Base
-  title="Affiliate disclosure | Company Name Checker"
-  description="How Company Name Checker is funded and how affiliate links work on this site."
+  title="How Company Name Checker is funded"
+  description="Company Name Checker is free and independent. How the site is funded, whether any links earn us money, and how we keep comparisons fair."
+  breadcrumbs={[{ name: "How we're funded", href: '/disclosure/' }]}
 >
-  <h1>Affiliate disclosure</h1>
-  <p>
-    Company Name Checker is free to use. Some links to providers, such as company registration services and
-    business accounts, are affiliate links: if you sign up through them, we may receive a commission. This
-    does not change the price you pay.
-  </p>
-  <p>
-    Affiliate links are labelled where they appear. Comparisons list providers that do not pay us too, and
-    prices come from each provider's own published pages (see <a href="/sources/">sources</a>).
-  </p>
+  <h1>How we're funded</h1>
+  <p class="lede">Company Name Checker is free to use, and it stays independent of Companies House and of every provider we mention.</p>
+
+  {
+    AFFILIATE_LINKS_ACTIVE ? (
+      <>
+        <h2>Affiliate links</h2>
+        <p>
+          Some links to providers, such as company registration services and business accounts, are affiliate links: if
+          you sign up through them, we may receive a commission. This doesn't change the price you pay.
+        </p>
+        <p>Affiliate links are labelled where they appear.</p>
+      </>
+    ) : (
+      <>
+        <h2>We don't earn from any links yet</h2>
+        <p>
+          No provider pays us, and none of the links on this site earn us a commission. We link to Tide, ANNA, banks
+          and Companies House because they're useful to people setting up a company, not because we're paid to.
+        </p>
+        <p>
+          In future we may join affiliate programmes, for example with company registration or business account
+          providers. If we do, we'll update this page and label every affiliate link where it appears. It won't change
+          the price you pay.
+        </p>
+      </>
+    )
+  }
+
+  <h2>How we keep comparisons fair</h2>
+  <ul>
+    <li>Every comparison includes options that don't pay us, including registering directly with Companies House.</li>
+    <li>
+      Prices and terms come from each provider's own published pages, with a link and the date we checked them. See
+      <a href="/sources/">sources</a> and <a href="/data-updates/">data updates</a>.
+    </li>
+    <li>Whether a provider pays us never decides whether it appears or where it's listed.</li>
+  </ul>
 </Base>
