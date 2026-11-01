@@ -1,0 +1,64 @@
+---
+// The logo: a name field with a cobalt tick ("this name is free") and the
+// company/name/checker wordmark with the .co.uk domain.
+interface Props {
+  href?: string;
+  label?: string;
+}
+
+const { href = '/', label } = Astro.props;
+---
+
+<a class="logo" href={href} aria-label={label}>
+  <svg class="logo__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <rect class="logo__field" x="2.5" y="9" width="27" height="14" rx="7" fill="none" stroke-width="2.2"></rect>
+    <rect class="logo__text" x="7" y="14.4" width="9" height="3.2" rx="1.6"></rect>
+    <circle class="logo__dot" cx="22.6" cy="16" r="4.6"></circle>
+    <path class="logo__tick" d="M20.5 16.1l1.5 1.5 2.8-3" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+  <span class="logo__word">company<span class="logo__name">name</span>checker<span class="logo__tld">.co.uk</span></span>
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .logo__mark {
+    width: 1.9rem;
+    height: 1.9rem;
+    flex: none;
+  }
+  .logo__field {
+    stroke: var(--ink);
+  }
+  .logo__text {
+    fill: var(--line-2);
+  }
+  .logo__dot {
+    fill: var(--cobalt-fill);
+  }
+  .logo__tick {
+    stroke: var(--on-cobalt);
+  }
+  .logo__word {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.2rem;
+    letter-spacing: -0.025em;
+  }
+  .logo__name {
+    color: var(--cobalt);
+  }
+  .logo__tld {
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .logo:hover .logo__dot {
+    fill: var(--cobalt-hover);
+  }
+</style>
