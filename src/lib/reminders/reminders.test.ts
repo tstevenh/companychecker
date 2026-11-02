@@ -7,6 +7,8 @@ import {
   acceptsReminders,
   hashIp,
   isToken,
+  LIMIT_COUNTS_SQL,
+  limitHit,
   newToken,
   parseEmail,
   RESERVE_SEND_SQL,
@@ -110,6 +112,20 @@ describe('reserving a confirmation send', () => {
     for (let i = 0; i < 10; i++) expect(reserve(db, `p${i}@x.co`, 'ip1', i)).toBe(true);
     expect(reserve(db, 'p10@x.co', 'ip1', 11)).toBe(false);
     expect(reserve(db, 'p10@x.co', 'ip2', 11)).toBe(true);
+  });
+  it('reports which limit stopped a send', () => {
+    const db = freshDb();
+    const hit = (email: string, ipHash: string | null, minutes: number) =>
+      limitHit(
+        db.prepare(LIMIT_COUNTS_SQL).get(...reserveSendParams({ email, ipHash, now: at(minutes) }).slice(0, 5)) as never,
+      );
+    reserve(db, 'a@x.co', 'ip1', 0);
+    expect(hit('a@x.co', 'ip1', 5)).toBe('recent');
+    reserve(db, 'a@x.co', 'ip1', 20);
+    reserve(db, 'a@x.co', 'ip1', 40);
+    expect(hit('a@x.co', 'ip1', 60)).toBe('daily');
+    for (let i = 0; i < 7; i++) reserve(db, `p${i}@x.co`, 'ip1', 61 + i);
+    expect(hit('new@x.co', 'ip1', 70)).toBe('rate');
   });
 });
 

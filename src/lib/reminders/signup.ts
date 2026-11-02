@@ -35,7 +35,27 @@ WHERE NOT EXISTS (SELECT 1 FROM confirmation_sends WHERE email = ?1 AND sent_at 
   AND (?2 IS NULL OR (SELECT COUNT(*) FROM confirmation_sends WHERE ip_hash = ?2) < ?7)
 RETURNING rowid`;
 
-export const COUNT_IP_SENDS_SQL = 'SELECT COUNT(*) AS n FROM confirmation_sends WHERE ip_hash = ?1';
+// When a reservation fails, which limit stopped it. Binds the first five of
+// reserveSendParams (?3, the time, is unused here).
+export const LIMIT_COUNTS_SQL = `SELECT
+  (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?4) AS emailRecent,
+  (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?5) AS emailDay,
+  CASE WHEN ?2 IS NULL THEN 0 ELSE (SELECT COUNT(*) FROM confirmation_sends WHERE ip_hash = ?2) END AS ipDay,
+  ?3 AS now`;
+
+export interface LimitCounts {
+  emailRecent: number;
+  emailDay: number;
+  ipDay: number;
+}
+
+// Too many from this connection, an email to this address in the last 10
+// minutes, or the address's daily allowance used up.
+export function limitHit(counts: LimitCounts): 'rate' | 'recent' | 'daily' {
+  if (counts.ipDay >= MAX_CONFIRMATIONS_PER_IP_PER_DAY) return 'rate';
+  if (counts.emailRecent > 0) return 'recent';
+  return 'daily';
+}
 
 export function reserveSendParams(p: { email: string; ipHash: string | null; now: Date }) {
   const t = p.now.getTime();
@@ -64,7 +84,8 @@ export async function hashIp(ip: string, day: string, secret: string): Promise<s
   return Array.from(await hmac(dayKey, ip), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Cap on companies per email address.
+// Cap on confirmed companies per email address. Unconfirmed sign-ups don't
+// count, so nobody can fill up someone else's list.
 export const MAX_COMPANIES_PER_EMAIL = 20;
 
 export function newToken(): string {

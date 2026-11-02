@@ -9,16 +9,16 @@ import { confirmationEmail, EmailError, reminderEmail, sendEmail, type OutgoingE
 import { remindersDue, sentKey, type Deadline } from '../reminders/schedule.ts';
 import {
   acceptsReminders,
-  CONFIRM_RESEND_MS,
-  COUNT_IP_SENDS_SQL,
   hashIp,
   isToken,
+  LIMIT_COUNTS_SQL,
+  limitHit,
   MAX_COMPANIES_PER_EMAIL,
-  MAX_CONFIRMATIONS_PER_IP_PER_DAY,
   newToken,
   parseEmail,
   RESERVE_SEND_SQL,
   reserveSendParams,
+  type LimitCounts,
 } from '../reminders/signup.ts';
 import { runCompanyDetails } from './runtime.ts';
 
@@ -91,8 +91,18 @@ const oneClickUrl = (token: string) => `${SITE.url}/reminders/one-click-unsubscr
 
 // ---- Sign-up ---------------------------------------------------------------
 
-export type SignUpError = 'email' | 'company' | 'inactive' | 'challenge' | 'rate' | 'unavailable';
-export type SignUpResult = { ok: true; companyName: string } | { ok: false; error: SignUpError };
+export type SignUpError =
+  | 'email'
+  | 'company'
+  | 'inactive'
+  | 'challenge'
+  | 'already'
+  | 'too-many'
+  | 'recent'
+  | 'daily'
+  | 'rate'
+  | 'unavailable';
+export type SignUpResult = { ok: true; companyName: string } | { ok: false; error: SignUpError; companyName?: string };
 
 export interface SignUpInput {
   email: string;
@@ -130,32 +140,24 @@ export async function signUp(input: SignUpInput, now = new Date()): Promise<Sign
     .bind(email, number)
     .first<SubscriptionRow>();
 
-  // The reply is the same whether or not the address was already signed up,
-  // so the form doesn't reveal who gets reminders.
-  if (existing?.confirmed_at) return { ok: true, companyName };
-  if (existing?.confirm_sent_at && now.getTime() - Date.parse(existing.confirm_sent_at) < CONFIRM_RESEND_MS) {
-    return { ok: true, companyName };
-  }
-  // Limits that depend on the address get the normal reply and send nothing,
-  // so the form never reveals what someone else did with that address.
-  if (!existing) {
-    const count = await db.prepare('SELECT COUNT(*) AS n FROM subscriptions WHERE email = ?').bind(email).first<number>('n');
-    if ((count ?? 0) >= MAX_COMPANIES_PER_EMAIL) return { ok: true, companyName };
-  }
+  // Each limit gets its own message, so the form never looks like it sent an
+  // email when it didn't.
+  if (existing?.confirmed_at) return { ok: false, error: 'already', companyName };
+  const confirmedCount = await db
+    .prepare('SELECT COUNT(*) AS n FROM subscriptions WHERE email = ? AND confirmed_at IS NOT NULL')
+    .bind(email)
+    .first<number>('n');
+  if ((confirmedCount ?? 0) >= MAX_COMPANIES_PER_EMAIL) return { ok: false, error: 'too-many' };
 
   const stamp = now.toISOString();
-  const day = stamp.slice(0, 10);
-  const ipHash = input.ip ? await hashIp(input.ip, day, ipHashSecret()) : null;
-  const reservation = reserveSendParams({ email, ipHash, now });
+  const ipHash = input.ip ? await hashIp(input.ip, stamp.slice(0, 10), ipHashSecret()) : null;
+  const params = reserveSendParams({ email, ipHash, now });
   // Reserve the send in one statement, so two sign-ups at the same moment
   // can't both slip under the limits.
-  const reserved = await db.prepare(RESERVE_SEND_SQL).bind(...reservation).first<{ rowid: number }>();
+  const reserved = await db.prepare(RESERVE_SEND_SQL).bind(...params).first<{ rowid: number }>();
   if (!reserved) {
-    // Only the per-IP limit is the requester's own doing, so only it is shown.
-    const ipCount = ipHash
-      ? await db.prepare(COUNT_IP_SENDS_SQL).bind(ipHash).first<number>('n')
-      : 0;
-    return (ipCount ?? 0) >= MAX_CONFIRMATIONS_PER_IP_PER_DAY ? { ok: false, error: 'rate' } : { ok: true, companyName };
+    const counts = await db.prepare(LIMIT_COUNTS_SQL).bind(...params.slice(0, 5)).first<LimitCounts>();
+    return { ok: false, error: counts ? limitHit(counts) : 'rate' };
   }
 
   const token = existing?.token ?? newToken();

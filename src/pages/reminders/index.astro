@@ -7,6 +7,7 @@ import ReminderForm from '../../components/ReminderForm.astro';
 import RelatedPages from '../../components/RelatedPages.astro';
 import { faqSchema, toolSchema } from '../../lib/schema';
 import { remindersAvailable, signUp, type SignUpError } from '../../lib/server/reminders.ts';
+import { MAX_COMPANIES_PER_EMAIL } from '../../lib/reminders/signup.ts';
 
 export const prerender = false;
 
@@ -14,17 +15,33 @@ const title = 'Companies House deadline reminders: free email alerts';
 const description =
   "Free email reminders before your company's confirmation statement and annual accounts are due. Enter your company number; we check the dates with Companies House.";
 
-const ERRORS: Record<SignUpError, string> = {
-  email: "That email address doesn't look right. Check it and try again.",
-  company: "We couldn't find a company with that number. Check it on your Companies House record and try again.",
-  inactive: "That company isn't active on the register, so it has no filing deadlines to remind you about.",
-  challenge: "The spam check didn't finish. Wait a moment for it to load, then send the form again.",
-  rate: 'There have been too many sign-ups from your connection today. Please try again tomorrow.',
-  unavailable: "Reminders aren't working right now. Please try again later.",
+// Ends a sentence with a company name, which may already end in a full stop
+// ("BP P.L.C.").
+const sentence = (name: string) => (name.endsWith('.') ? name : `${name}.`);
+
+// Outcomes that aren't mistakes: shown in ink, not red (DESIGN.md keeps red
+// for errors).
+const NOT_ERRORS: SignUpError[] = ['already', 'recent', 'daily'];
+
+const ERRORS: Record<SignUpError, (companyName?: string) => string> = {
+  email: () => "That email address doesn't look right. Check it and try again.",
+  company: () => "We couldn't find a company with that number. Check it on your Companies House record and try again.",
+  inactive: () => "That company isn't active on the register, so it has no filing deadlines to remind you about.",
+  challenge: () => "The spam check didn't finish. Wait a moment for it to load, then send the form again.",
+  already: (name) => `This email address already gets reminders for ${sentence(name ?? 'this company')} There's nothing more to do.`,
+  'too-many': () =>
+    `This email address already gets reminders for ${MAX_COMPANIES_PER_EMAIL} companies, the most we allow. Please use a different email address.`,
+  recent: () =>
+    "We've just sent a confirmation email to this address. Check your inbox and spam folder, or try again in 10 minutes.",
+  daily: () =>
+    "We've sent several confirmation emails to this address today. Try again tomorrow, or use a different email address.",
+  rate: () => 'There have been too many sign-ups from your connection today. Please try again tomorrow.',
+  unavailable: () => "Reminders aren't working right now. Please try again later.",
 };
 
 let sent: string | null = null;
 let error: string | null = null;
+let errorIsInfo = false;
 let form = { company: '', email: '' };
 
 if (Astro.request.method === 'POST') {
@@ -39,8 +56,9 @@ if (Astro.request.method === 'POST') {
   });
   if (result.ok) sent = result.companyName;
   else {
-    error = ERRORS[result.error];
-    Astro.response.status = result.error === 'unavailable' ? 503 : 400;
+    error = ERRORS[result.error](result.companyName);
+    errorIsInfo = NOT_ERRORS.includes(result.error);
+    Astro.response.status = result.error === 'unavailable' ? 503 : errorIsInfo ? 200 : 400;
   }
 }
 
@@ -80,7 +98,7 @@ const faq = [
       <>
         <h1>Check your email</h1>
         <p class="lede">
-          We've sent a link to <strong>{form.email}</strong>. Click it to start reminders for {sent}{sent.endsWith('.') ? '' : '.'} If it hasn't
+          We've sent a link to <strong>{form.email}</strong>. Click it to start reminders for {sentence(sent)} If it hasn't
           arrived in a few minutes, check your spam folder.
         </p>
         <p>
@@ -94,7 +112,7 @@ const faq = [
           Get an email before your company's confirmation statement and annual accounts are due. Free, with the dates
           checked against Companies House every day.
         </p>
-        {error && <p class="notice overdue" role="alert">{error}</p>}
+        {error && <p class:list={['notice', { overdue: !errorIsInfo }]} role={errorIsInfo ? 'status' : 'alert'}>{error}</p>}
         {remindersAvailable() ? (
           <ReminderForm company={form.company} email={form.email} />
         ) : (
