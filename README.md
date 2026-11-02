@@ -85,7 +85,8 @@ The form only appears once D1, a Turnstile site key and (in production) a Resend
    ```
 2. In Resend, add and verify the domain (Resend can add the DNS records in Cloudflare), create an API key, then `npx wrangler secret put RESEND_API_KEY`.
 3. In Cloudflare, create a Turnstile widget for the domain. Put the site key in `TURNSTILE_SITE_KEY` in `wrangler.jsonc`, then `npx wrangler secret put TURNSTILE_SECRET_KEY`.
-4. `npm run deploy`.
+4. Set `IP_HASH_SECRET` to a long random string: `openssl rand -hex 32 | npx wrangler secret put IP_HASH_SECRET`. It keys the hash of sign-up IP addresses used for the per-IP limit.
+5. `npm run deploy`.
 
 Locally, `npx wrangler d1 migrations apply companynamechecker --local` creates the tables. `npm run dev` always uses Cloudflare's Turnstile test keys, which pass on localhost. With `RESEND_API_KEY` in `.dev.vars` it sends real emails; without it, it prints them to the log.
 

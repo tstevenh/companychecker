@@ -16,7 +16,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       filter: (page) =>
-        !['/check/', '/company/', '/results/', '/ideas/', '/reminders/confirm/', '/reminders/unsubscribe/'].some((part) => new URL(page).pathname.includes(part)),
+        !['/check/', '/company/', '/results/', '/ideas/', '/reminders/confirm/', '/reminders/unsubscribe/', '/dev/'].some((part) => new URL(page).pathname.includes(part)),
     }),
   ],
 });

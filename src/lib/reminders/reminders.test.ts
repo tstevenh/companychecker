@@ -1,15 +1,16 @@
+import { readFileSync } from 'node:fs';
+import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it, vi } from 'vitest';
 import { remindersDue, sentKey, stageFor } from './schedule.ts';
 import { confirmationEmail, reminderEmail, sendEmail } from './email.ts';
 import {
   acceptsReminders,
-  confirmationAllowed,
   hashIp,
   isToken,
-  MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY,
-  MAX_CONFIRMATIONS_PER_IP_PER_DAY,
   newToken,
   parseEmail,
+  RESERVE_SEND_SQL,
+  reserveSendParams,
 } from './signup.ts';
 
 const today = new Date('2026-11-02T07:00:00Z');
@@ -79,30 +80,46 @@ describe('acceptsReminders', () => {
   });
 });
 
-describe('confirmationAllowed', () => {
-  const none = { emailRecent: 0, emailDay: 0, ipDay: 0 };
+describe('reserving a confirmation send', () => {
+  // The real migration and statement, run against SQLite (which D1 is).
+  function freshDb() {
+    const db = new DatabaseSync(':memory:');
+    db.exec(readFileSync(new URL('../../../migrations/0002_confirmation_sends.sql', import.meta.url), 'utf8'));
+    return db;
+  }
+  const at = (minutes: number) => new Date(Date.UTC(2026, 10, 2, 8) + minutes * 60_000);
+  const reserve = (db: DatabaseSync, email: string, ipHash: string | null, minutes: number) =>
+    db.prepare(RESERVE_SEND_SQL).get(...reserveSendParams({ email, ipHash, now: at(minutes) })) !== undefined;
 
-  it('allows a first confirmation', () => {
-    expect(confirmationAllowed(none)).toBe(true);
+  it('allows one send per address every 10 minutes, whatever the company', () => {
+    const db = freshDb();
+    expect(reserve(db, 'a@x.co', 'ip1', 0)).toBe(true);
+    expect(reserve(db, 'a@x.co', 'ip2', 5)).toBe(false);
+    expect(reserve(db, 'a@x.co', 'ip2', 11)).toBe(true);
   });
 
-  it('blocks a second email to the same address within 10 minutes, whatever the company', () => {
-    expect(confirmationAllowed({ ...none, emailRecent: 1, emailDay: 1 })).toBe(false);
+  it('allows 3 sends per address in 24 hours', () => {
+    const db = freshDb();
+    for (const m of [0, 20, 40]) expect(reserve(db, 'a@x.co', null, m)).toBe(true);
+    expect(reserve(db, 'a@x.co', null, 60)).toBe(false);
+    expect(reserve(db, 'a@x.co', null, 24 * 60 + 1)).toBe(true);
   });
 
-  it('caps confirmations per address and per IP each day', () => {
-    expect(confirmationAllowed({ ...none, emailDay: MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY - 1 })).toBe(true);
-    expect(confirmationAllowed({ ...none, emailDay: MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY })).toBe(false);
-    expect(confirmationAllowed({ ...none, ipDay: MAX_CONFIRMATIONS_PER_IP_PER_DAY })).toBe(false);
+  it('allows 10 sends per IP hash, to any addresses', () => {
+    const db = freshDb();
+    for (let i = 0; i < 10; i++) expect(reserve(db, `p${i}@x.co`, 'ip1', i)).toBe(true);
+    expect(reserve(db, 'p10@x.co', 'ip1', 11)).toBe(false);
+    expect(reserve(db, 'p10@x.co', 'ip2', 11)).toBe(true);
   });
 });
 
 describe('hashIp', () => {
-  it('gives the same hash within a day and a different one the next day', async () => {
-    const a = await hashIp('203.0.113.7', '2026-11-02');
+  it('is stable within a day, changes with the day and needs the secret', async () => {
+    const a = await hashIp('203.0.113.7', '2026-11-02', 'secret');
     expect(a).toMatch(/^[0-9a-f]{64}$/);
-    expect(await hashIp('203.0.113.7', '2026-11-02')).toBe(a);
-    expect(await hashIp('203.0.113.7', '2026-11-03')).not.toBe(a);
+    expect(await hashIp('203.0.113.7', '2026-11-02', 'secret')).toBe(a);
+    expect(await hashIp('203.0.113.7', '2026-11-03', 'secret')).not.toBe(a);
+    expect(await hashIp('203.0.113.7', '2026-11-02', 'other')).not.toBe(a);
   });
 });
 

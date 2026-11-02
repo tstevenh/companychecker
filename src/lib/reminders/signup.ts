@@ -17,33 +17,51 @@ export function acceptsReminders(status: string): boolean {
 }
 
 // Limits on confirmation emails, so the form can't be used to flood someone's
-// inbox or use up the daily sending allowance. They count every confirmation
-// to an address, whichever company it was for.
+// inbox or use up the daily sending allowance. The address limits count every
+// confirmation to that address, whichever company it was for: one per 10
+// minutes and 3 in any 24 hours. The IP limit is 10 per UTC day.
 export const CONFIRM_RESEND_MS = 10 * 60 * 1000;
 export const MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY = 3;
 export const MAX_CONFIRMATIONS_PER_IP_PER_DAY = 10;
 
-export interface RecentConfirmations {
-  // To this address in the last 10 minutes, and in the last 24 hours.
-  emailRecent: number;
-  emailDay: number;
-  // From this IP address in the last 24 hours.
-  ipDay: number;
+// Records a confirmation send only if it is within every limit, in a single
+// statement so concurrent sign-ups can't both pass. Returns the new rowid, or
+// no row when a limit was hit. An IP hash is only ever today's (see hashIp),
+// so counting by hash counts today's sends from that IP.
+export const RESERVE_SEND_SQL = `INSERT INTO confirmation_sends (email, ip_hash, sent_at)
+SELECT ?1, ?2, ?3
+WHERE NOT EXISTS (SELECT 1 FROM confirmation_sends WHERE email = ?1 AND sent_at > ?4)
+  AND (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?5) < ?6
+  AND (?2 IS NULL OR (SELECT COUNT(*) FROM confirmation_sends WHERE ip_hash = ?2) < ?7)
+RETURNING rowid`;
+
+export const COUNT_IP_SENDS_SQL = 'SELECT COUNT(*) AS n FROM confirmation_sends WHERE ip_hash = ?1';
+
+export function reserveSendParams(p: { email: string; ipHash: string | null; now: Date }) {
+  const t = p.now.getTime();
+  return [
+    p.email,
+    p.ipHash,
+    p.now.toISOString(),
+    new Date(t - CONFIRM_RESEND_MS).toISOString(),
+    new Date(t - 86_400_000).toISOString(),
+    MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY,
+    MAX_CONFIRMATIONS_PER_IP_PER_DAY,
+  ] as const;
 }
 
-export function confirmationAllowed(recent: RecentConfirmations): boolean {
-  return (
-    recent.emailRecent === 0 &&
-    recent.emailDay < MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY &&
-    recent.ipDay < MAX_CONFIRMATIONS_PER_IP_PER_DAY
-  );
+async function hmac(key: Uint8Array, message: string): Promise<Uint8Array> {
+  const cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return new Uint8Array(await crypto.subtle.sign('HMAC', cryptoKey, new TextEncoder().encode(message)));
 }
 
-// SHA-256 of the day and the IP address: enough to count sends from one
-// address today, but not to link them to another day.
-export async function hashIp(ip: string, day: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${day}|${ip}`));
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+// HMAC of the IP address under a key for the day, which is itself derived from
+// a secret kept outside the database. Without the secret the hashes can't be
+// reversed by trying every IP address, and hashes from different days can't be
+// linked to each other.
+export async function hashIp(ip: string, day: string, secret: string): Promise<string> {
+  const dayKey = await hmac(new TextEncoder().encode(secret), day);
+  return Array.from(await hmac(dayKey, ip), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // Cap on companies per email address.

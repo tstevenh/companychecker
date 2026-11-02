@@ -19,8 +19,7 @@ const ERRORS: Record<SignUpError, string> = {
   company: "We couldn't find a company with that number. Check it on your Companies House record and try again.",
   inactive: "That company isn't active on the register, so it has no filing deadlines to remind you about.",
   challenge: "The spam check didn't finish. Wait a moment for it to load, then send the form again.",
-  'too-many': "That email address already has reminders for the most companies we allow. Unsubscribe from one first.",
-  rate: "We've already sent a confirmation email to that address recently. Click the link in it, or try again in a few hours.",
+  rate: 'There have been too many sign-ups from your connection today. Please try again tomorrow.',
   unavailable: "Reminders aren't working right now. Please try again later.",
 };
 
@@ -81,7 +80,7 @@ const faq = [
       <>
         <h1>Check your email</h1>
         <p class="lede">
-          We've sent a link to <strong>{form.email}</strong>. Click it to start reminders for {sent}. If it hasn't
+          We've sent a link to <strong>{form.email}</strong>. Click it to start reminders for {sent}{sent.endsWith('.') ? '' : '.'} If it hasn't
           arrived in a few minutes, check your spam folder.
         </p>
         <p>

@@ -50,6 +50,7 @@
 	//   COMPANIES_HOUSE_API_KEY  Companies House REST API key
 	//   RESEND_API_KEY           sends the confirmation and reminder emails
 	//   TURNSTILE_SECRET_KEY     checks the sign-up form's spam challenge
+	//   IP_HASH_SECRET           keys the daily hash of sign-up IP addresses (any long random string)
 	"observability": {
 		"enabled": true
 	}

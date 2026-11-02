@@ -10,13 +10,15 @@ import { remindersDue, sentKey, type Deadline } from '../reminders/schedule.ts';
 import {
   acceptsReminders,
   CONFIRM_RESEND_MS,
-  confirmationAllowed,
+  COUNT_IP_SENDS_SQL,
   hashIp,
   isToken,
   MAX_COMPANIES_PER_EMAIL,
+  MAX_CONFIRMATIONS_PER_IP_PER_DAY,
   newToken,
   parseEmail,
-  type RecentConfirmations,
+  RESERVE_SEND_SQL,
+  reserveSendParams,
 } from '../reminders/signup.ts';
 import { runCompanyDetails } from './runtime.ts';
 
@@ -26,6 +28,7 @@ type ReminderEnv = {
   RESEND_API_KEY?: string;
   TURNSTILE_SECRET_KEY?: string;
   TURNSTILE_SITE_KEY?: string;
+  IP_HASH_SECRET?: string;
   EMAIL_FROM?: string;
 };
 const runtime = env as unknown as ReminderEnv;
@@ -41,8 +44,13 @@ export function turnstileSiteKey(): string {
   return import.meta.env.DEV ? TEST_SITE_KEY : runtime.TURNSTILE_SITE_KEY || '';
 }
 
+// Keys the hash of each sign-up's IP address (see hashIp).
+function ipHashSecret(): string {
+  return runtime.IP_HASH_SECRET || (import.meta.env.DEV ? 'local-development-only' : '');
+}
+
 export function remindersAvailable(): boolean {
-  return Boolean(runtime.DB && turnstileSiteKey() && (runtime.RESEND_API_KEY || import.meta.env.DEV));
+  return Boolean(runtime.DB && turnstileSiteKey() && ipHashSecret() && (runtime.RESEND_API_KEY || import.meta.env.DEV));
 }
 
 async function verifyTurnstile(token: string, ip: string | null): Promise<boolean> {
@@ -83,7 +91,7 @@ const oneClickUrl = (token: string) => `${SITE.url}/reminders/one-click-unsubscr
 
 // ---- Sign-up ---------------------------------------------------------------
 
-export type SignUpError = 'email' | 'company' | 'inactive' | 'challenge' | 'too-many' | 'rate' | 'unavailable';
+export type SignUpError = 'email' | 'company' | 'inactive' | 'challenge' | 'rate' | 'unavailable';
 export type SignUpResult = { ok: true; companyName: string } | { ok: false; error: SignUpError };
 
 export interface SignUpInput {
@@ -128,25 +136,27 @@ export async function signUp(input: SignUpInput, now = new Date()): Promise<Sign
   if (existing?.confirm_sent_at && now.getTime() - Date.parse(existing.confirm_sent_at) < CONFIRM_RESEND_MS) {
     return { ok: true, companyName };
   }
+  // Limits that depend on the address get the normal reply and send nothing,
+  // so the form never reveals what someone else did with that address.
   if (!existing) {
     const count = await db.prepare('SELECT COUNT(*) AS n FROM subscriptions WHERE email = ?').bind(email).first<number>('n');
-    if ((count ?? 0) >= MAX_COMPANIES_PER_EMAIL) return { ok: false, error: 'too-many' };
+    if ((count ?? 0) >= MAX_COMPANIES_PER_EMAIL) return { ok: true, companyName };
   }
 
   const stamp = now.toISOString();
-  const dayAgo = new Date(now.getTime() - 86_400_000).toISOString();
-  const recentCutoff = new Date(now.getTime() - CONFIRM_RESEND_MS).toISOString();
-  const ipHash = input.ip ? await hashIp(input.ip, stamp.slice(0, 10)) : null;
-  const recent = await db
-    .prepare(
-      `SELECT
-         (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?2) AS emailRecent,
-         (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?3) AS emailDay,
-         (SELECT COUNT(*) FROM confirmation_sends WHERE ip_hash = ?4 AND sent_at > ?3) AS ipDay`,
-    )
-    .bind(email, recentCutoff, dayAgo, ipHash)
-    .first<RecentConfirmations>();
-  if (!recent || !confirmationAllowed(recent)) return { ok: false, error: 'rate' };
+  const day = stamp.slice(0, 10);
+  const ipHash = input.ip ? await hashIp(input.ip, day, ipHashSecret()) : null;
+  const reservation = reserveSendParams({ email, ipHash, now });
+  // Reserve the send in one statement, so two sign-ups at the same moment
+  // can't both slip under the limits.
+  const reserved = await db.prepare(RESERVE_SEND_SQL).bind(...reservation).first<{ rowid: number }>();
+  if (!reserved) {
+    // Only the per-IP limit is the requester's own doing, so only it is shown.
+    const ipCount = ipHash
+      ? await db.prepare(COUNT_IP_SENDS_SQL).bind(ipHash).first<number>('n')
+      : 0;
+    return (ipCount ?? 0) >= MAX_CONFIRMATIONS_PER_IP_PER_DAY ? { ok: false, error: 'rate' } : { ok: true, companyName };
+  }
 
   const token = existing?.token ?? newToken();
   await db
@@ -163,11 +173,13 @@ export async function signUp(input: SignUpInput, now = new Date()): Promise<Sign
     await deliver(outgoing(email, confirmationEmail({ name: companyName, number }, confirmUrl(token))));
   } catch (err) {
     console.error('Confirmation email failed', err);
-    // Let the person try again straight away.
-    await db.prepare('UPDATE subscriptions SET confirm_sent_at = NULL WHERE token = ?').bind(token).run();
+    // Release the reservation and let the person try again straight away.
+    await db.batch([
+      db.prepare('UPDATE subscriptions SET confirm_sent_at = NULL WHERE token = ?').bind(token),
+      db.prepare('DELETE FROM confirmation_sends WHERE rowid = ?').bind(reserved.rowid),
+    ]);
     return { ok: false, error: 'unavailable' };
   }
-  await db.prepare('INSERT INTO confirmation_sends (email, ip_hash, sent_at) VALUES (?, ?, ?)').bind(email, ipHash, stamp).run();
   return { ok: true, companyName };
 }
 
