@@ -2,6 +2,8 @@
 import Base from '../../layouts/Base.astro';
 import CompanySearchForm from '../../components/CompanySearchForm.astro';
 import RelatedPages from '../../components/RelatedPages.astro';
+import ReminderForm from '../../components/ReminderForm.astro';
+import { acceptsReminders } from '../../lib/reminders/signup.ts';
 import { runCompanyDetails } from '../../lib/server/runtime.ts';
 import { parseCompanyNumber } from '../../lib/company-number.ts';
 import { daysUntil } from '../../lib/company-lookup.ts';
@@ -72,6 +74,12 @@ const chUrl = `https://find-and-update.company-information.service.gov.uk/compan
             : `From Companies House data of ${details.indexSnapshot ? formatDate(new Date(details.indexSnapshot)) : 'last month'}. If the company has filed since, its next dates will have moved.`}{' '}
           See the full record on <a href={chUrl} rel="nofollow noopener">Companies House</a>.
         </p>
+        {acceptsReminders(details.company.status) && (
+          <section>
+            <h2>Get a reminder before these dates</h2>
+            <ReminderForm companyNumber={number} companyName={details.company.name} />
+          </section>
+        )}
         <RelatedPages
           heading="What these deadlines mean"
           hrefs={['/confirmation-statement/', '/companies-house-identity-verification/', '/dormant-company/']}

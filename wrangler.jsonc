@@ -3,11 +3,18 @@
 	"compatibility_date": "2026-10-23",
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "companynamechecker",
-	"main": "@astrojs/cloudflare/entrypoints/server",
+	// Astro's request handler plus the daily reminder job (src/worker.ts).
+	"main": "./src/worker.ts",
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	// The live domain. Deploying attaches it to this Worker and creates its DNS
+	// records; www is redirected to the bare domain by a Cloudflare redirect rule.
+	"routes": [
+		{ "pattern": "companynamechecker.co.uk", "custom_domain": true },
+		{ "pattern": "www.companynamechecker.co.uk", "custom_domain": true }
+	],
 	// The monthly company index built by scripts/import/build-index.ts.
 	// Create a bucket with this name in R2 before deploying.
 	"r2_buckets": [
@@ -16,8 +23,33 @@
 			"bucket_name": "companynamechecker-index"
 		}
 	],
-	// COMPANIES_HOUSE_API_KEY is a secret: `npx wrangler secret put COMPANIES_HOUSE_API_KEY`
-	// in production, and a line in .dev.vars for local development.
+	// Deadline reminder sign-ups. Create it with `npx wrangler d1 create companynamechecker`,
+	// paste the database_id it prints here, then apply migrations/ with
+	// `npx wrangler d1 migrations apply companynamechecker --remote`.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "companynamechecker",
+			"database_id": "e749a10e-a033-4945-b0b4-54eaa138eea4",
+			"migrations_dir": "migrations"
+		}
+	],
+	// The reminder job runs hourly from 07:15 to 19:15 UTC, checking a slice of
+	// companies each time (see src/lib/server/reminders.ts).
+	"triggers": {
+		"crons": ["15 7-19 * * *"]
+	},
+	"vars": {
+		// Must be on the domain verified in Resend.
+		"EMAIL_FROM": "Company Name Checker <reminders@companynamechecker.co.uk>",
+		// Public Turnstile site key for the sign-up form (the secret key is a secret).
+		"TURNSTILE_SITE_KEY": "0x4AAAAAAFwI4qMXpKdBQehd"
+	},
+	// Secrets: `npx wrangler secret put <NAME>` in production, and a line in
+	// .dev.vars for local development.
+	//   COMPANIES_HOUSE_API_KEY  Companies House REST API key
+	//   RESEND_API_KEY           sends the confirmation and reminder emails
+	//   TURNSTILE_SECRET_KEY     checks the sign-up form's spam challenge
 	"observability": {
 		"enabled": true
 	}

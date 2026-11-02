@@ -1,0 +1,36 @@
+---
+// The "stop these reminders" link in every reminder email. Like confirming, it
+// takes a button press so mail scanners can't unsubscribe people by visiting.
+// Inbox one-click unsubscribes go to /reminders/one-click-unsubscribe/ (src/worker.ts).
+import Base from '../../layouts/Base.astro';
+import { findSubscription, unsubscribe } from '../../lib/server/reminders.ts';
+
+export const prerender = false;
+
+const token = Astro.url.searchParams.get('t') ?? '';
+const subscription = await findSubscription(token);
+const done = Astro.request.method === 'POST' ? (await unsubscribe(token), true) : !subscription;
+---
+
+<Base title="Stop reminders | Company Name Checker" description="Stop Companies House deadline reminder emails." noindex>
+  {
+    done ? (
+      <>
+        <h1>You're unsubscribed</h1>
+        <p class="lede">
+          {subscription ? `We won't email you about ${subscription.companyName} again, ` : "You won't get any more reminders from this link, "}
+          and we've deleted your email address for it.
+        </p>
+        <p>Changed your mind? You can <a href="/reminders/">sign up again</a>.</p>
+      </>
+    ) : (
+      <>
+        <h1>Stop reminders?</h1>
+        <p class="lede">Stop deadline reminders for {subscription!.companyName} ({subscription!.companyNumber}) and delete your email address for it.</p>
+        <form method="post">
+          <button class="button" type="submit">Unsubscribe</button>
+        </form>
+      </>
+    )
+  }
+</Base>

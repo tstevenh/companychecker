@@ -8,7 +8,7 @@ Source for [companynamechecker.co.uk](https://companynamechecker.co.uk): a free,
 |---|---|
 | Website pages and tools | One Cloudflare Worker: static pages served as assets, plus the on-demand `/check/` page and `/api/name-check/` |
 | Every live UK company (~5.7 million) | Lookup files ("shards") in Cloudflare R2, rebuilt monthly |
-| Small app data: reminder subscribers | Cloudflare D1 (Phase 3) |
+| Deadline reminder sign-ups | Cloudflare D1, with emails sent through Resend and a cron trigger in the same Worker |
 | Monthly rebuild | GitHub Actions |
 
 There's no database server. A name check normalises the name, fetches the one ~64 KB shard it would be in, and looks it up.
@@ -21,7 +21,11 @@ There's no database server. A name check normalises the name, fetches the one ~6
 | `src/pages/check.astro`, `src/pages/api/name-check.ts` | The name checker (rendered on demand in the Worker) |
 | `src/lib/name-check.ts`, `src/lib/server/runtime.ts` | Name-check logic, and its wiring to R2, the cache and the Companies House API |
 | `src/data/site.ts` | Operator name and contact email (fill in before launch) |
-| `wrangler.jsonc` | Worker config: name, R2 binding `COMPANY_INDEX` |
+| `wrangler.jsonc` | Worker config: R2 binding `COMPANY_INDEX`, D1 binding `DB`, the reminder cron, vars |
+| `src/worker.ts` | Worker entry: Astro's handler, the inbox one-click unsubscribe, and the cron job |
+| `src/lib/reminders/`, `src/lib/server/reminders.ts` | Reminder schedule and email content (pure, tested), and their wiring to D1, Turnstile and Resend |
+| `src/pages/reminders/` | Sign-up page, confirm page and unsubscribe page |
+| `migrations/` | D1 schema |
 | `scripts/dev/seed-local-index.ts` | Loads a locally built index into the local R2 emulator for `npm run dev` |
 | `src/data/facts.json` | Every fee, rule, date and price shown on the site. The schema in `src/content.config.ts` makes the build fail if a fact has no official source or check date |
 | `src/data/data-updates.json` | Public changelog shown on `/data-updates/` |
@@ -67,6 +71,23 @@ node scripts/dev/seed-local-index.ts ./index-out
 ```
 
 To try the live Companies House check, add `COMPANIES_HOUSE_API_KEY=...` to a `.dev.vars` file (git-ignored).
+
+## Deadline reminders
+
+People sign up on `/reminders/` or a company page with an email and company number. They get a confirmation email and must press a button on `/reminders/confirm/` before anything else is sent. A cron trigger runs `runReminderJob` hourly from 07:15 to 19:15 UTC. Each run checks a slice of companies against the live Companies House API and emails about 30 and 7 days before the confirmation statement and accounts are due. Each run stays under the Workers Free limit of 50 outgoing requests. Unsubscribing deletes the row, and unconfirmed sign-ups are deleted after 7 days.
+
+The form only appears once D1, a Turnstile site key and (in production) a Resend key are set. Setup:
+
+1. Create the database, then paste the `database_id` it prints into `wrangler.jsonc`:
+   ```sh
+   npx wrangler d1 create companynamechecker
+   npx wrangler d1 migrations apply companynamechecker --remote
+   ```
+2. In Resend, add and verify the domain (Resend can add the DNS records in Cloudflare), create an API key, then `npx wrangler secret put RESEND_API_KEY`.
+3. In Cloudflare, create a Turnstile widget for the domain. Put the site key in `TURNSTILE_SITE_KEY` in `wrangler.jsonc`, then `npx wrangler secret put TURNSTILE_SECRET_KEY`.
+4. `npm run deploy`.
+
+Locally, `npx wrangler d1 migrations apply companynamechecker --local` creates the tables. `npm run dev` always uses Cloudflare's Turnstile test keys, which pass on localhost. With `RESEND_API_KEY` in `.dev.vars` it sends real emails; without it, it prints them to the log.
 
 ## Before launch
 

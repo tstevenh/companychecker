@@ -1,0 +1,45 @@
+---
+// The link in the confirmation email lands here. Confirming takes a button
+// press, not just the visit, because mail scanners open links on their own.
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/ui/Icon.astro';
+import { confirmSubscription, findSubscription } from '../../lib/server/reminders.ts';
+
+export const prerender = false;
+
+const token = Astro.url.searchParams.get('t') ?? '';
+const subscription = Astro.request.method === 'POST' ? await confirmSubscription(token) : await findSubscription(token);
+if (!subscription) Astro.response.status = 404;
+const companyUrl = subscription ? `/company/?number=${encodeURIComponent(subscription.companyNumber)}` : '';
+---
+
+<Base title="Confirm your reminders | Company Name Checker" description="Confirm Companies House deadline reminders." noindex>
+  {
+    !subscription ? (
+      <>
+        <h1>This link has expired</h1>
+        <p>
+          Unconfirmed sign-ups are deleted after 7 days, and unsubscribing deletes them too. You can{' '}
+          <a href="/reminders/">sign up again</a>.
+        </p>
+      </>
+    ) : subscription.confirmed ? (
+      <>
+        <h1>You're all set</h1>
+        <p class="lede">
+          We'll email you before {subscription.companyName}'s confirmation statement and accounts are due. Each email has a
+          link to stop them.
+        </p>
+        <p><a href={companyUrl}>See the company's deadlines now</a></p>
+      </>
+    ) : (
+      <>
+        <h1>Confirm your reminders</h1>
+        <p class="lede">Start deadline reminders for {subscription.companyName} ({subscription.companyNumber})?</p>
+        <form method="post">
+          <button class="button" type="submit">Yes, send me reminders<Icon name="arrowRight" /></button>
+        </form>
+      </>
+    )
+  }
+</Base>

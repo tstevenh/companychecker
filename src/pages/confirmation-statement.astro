@@ -57,6 +57,7 @@ const faq = [
   <h2>Check your company's deadline</h2>
   <p>Search by company name or number to see the next confirmation statement and accounts dates, and how many days are left.</p>
   <CompanySearchForm button="Check deadline" />
+  <p>Want an email before it's due? <a href="/reminders/">Get free deadline reminders</a>.</p>
 
   <h2>When it's due</h2>
   <p>
@@ -149,7 +150,7 @@ const faq = [
 
   <Faq items={faq} />
 
-  <RelatedPages hrefs={['/companies-house-identity-verification/', '/dormant-company/', '/company-search/', '/registered-office-address/']} />
+  <RelatedPages hrefs={['/reminders/', '/companies-house-identity-verification/', '/dormant-company/', '/company-search/']} />
 
   <GuideSources
     factIds={[

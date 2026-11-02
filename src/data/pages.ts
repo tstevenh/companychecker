@@ -22,6 +22,12 @@ export const PAGES: SitePage[] = [
     kind: 'tool',
   },
   {
+    href: '/reminders/',
+    title: 'Deadline reminders',
+    description: "Free emails before your company's confirmation statement and accounts are due, with dates checked against Companies House.",
+    kind: 'tool',
+  },
+  {
     href: '/business-name-generator/',
     title: 'Business name generator',
     description: 'Get name ideas from your keywords, each one checked against every live UK company.',
