@@ -1,7 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { remindersDue, sentKey, stageFor } from './schedule.ts';
 import { confirmationEmail, reminderEmail, sendEmail } from './email.ts';
-import { acceptsReminders, isToken, newToken, parseEmail } from './signup.ts';
+import {
+  acceptsReminders,
+  confirmationAllowed,
+  hashIp,
+  isToken,
+  MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY,
+  MAX_CONFIRMATIONS_PER_IP_PER_DAY,
+  newToken,
+  parseEmail,
+} from './signup.ts';
 
 const today = new Date('2026-11-02T07:00:00Z');
 
@@ -67,6 +76,33 @@ describe('acceptsReminders', () => {
     expect(acceptsReminders('Active - Proposal to Strike off')).toBe(true);
     expect(acceptsReminders('dissolved')).toBe(false);
     expect(acceptsReminders('Liquidation')).toBe(false);
+  });
+});
+
+describe('confirmationAllowed', () => {
+  const none = { emailRecent: 0, emailDay: 0, ipDay: 0 };
+
+  it('allows a first confirmation', () => {
+    expect(confirmationAllowed(none)).toBe(true);
+  });
+
+  it('blocks a second email to the same address within 10 minutes, whatever the company', () => {
+    expect(confirmationAllowed({ ...none, emailRecent: 1, emailDay: 1 })).toBe(false);
+  });
+
+  it('caps confirmations per address and per IP each day', () => {
+    expect(confirmationAllowed({ ...none, emailDay: MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY - 1 })).toBe(true);
+    expect(confirmationAllowed({ ...none, emailDay: MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY })).toBe(false);
+    expect(confirmationAllowed({ ...none, ipDay: MAX_CONFIRMATIONS_PER_IP_PER_DAY })).toBe(false);
+  });
+});
+
+describe('hashIp', () => {
+  it('gives the same hash within a day and a different one the next day', async () => {
+    const a = await hashIp('203.0.113.7', '2026-11-02');
+    expect(a).toMatch(/^[0-9a-f]{64}$/);
+    expect(await hashIp('203.0.113.7', '2026-11-02')).toBe(a);
+    expect(await hashIp('203.0.113.7', '2026-11-03')).not.toBe(a);
   });
 });
 

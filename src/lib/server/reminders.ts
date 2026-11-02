@@ -7,7 +7,17 @@ import { companiesHouseProfile, type LiveProfile } from '../company-lookup.ts';
 import { parseCompanyNumber } from '../company-number.ts';
 import { confirmationEmail, EmailError, reminderEmail, sendEmail, type OutgoingEmail } from '../reminders/email.ts';
 import { remindersDue, sentKey, type Deadline } from '../reminders/schedule.ts';
-import { acceptsReminders, CONFIRM_RESEND_MS, isToken, MAX_COMPANIES_PER_EMAIL, newToken, parseEmail } from '../reminders/signup.ts';
+import {
+  acceptsReminders,
+  CONFIRM_RESEND_MS,
+  confirmationAllowed,
+  hashIp,
+  isToken,
+  MAX_COMPANIES_PER_EMAIL,
+  newToken,
+  parseEmail,
+  type RecentConfirmations,
+} from '../reminders/signup.ts';
 import { runCompanyDetails } from './runtime.ts';
 
 type ReminderEnv = {
@@ -73,7 +83,7 @@ const oneClickUrl = (token: string) => `${SITE.url}/reminders/one-click-unsubscr
 
 // ---- Sign-up ---------------------------------------------------------------
 
-export type SignUpError = 'email' | 'company' | 'inactive' | 'challenge' | 'too-many' | 'unavailable';
+export type SignUpError = 'email' | 'company' | 'inactive' | 'challenge' | 'too-many' | 'rate' | 'unavailable';
 export type SignUpResult = { ok: true; companyName: string } | { ok: false; error: SignUpError };
 
 export interface SignUpInput {
@@ -123,8 +133,22 @@ export async function signUp(input: SignUpInput, now = new Date()): Promise<Sign
     if ((count ?? 0) >= MAX_COMPANIES_PER_EMAIL) return { ok: false, error: 'too-many' };
   }
 
-  const token = existing?.token ?? newToken();
   const stamp = now.toISOString();
+  const dayAgo = new Date(now.getTime() - 86_400_000).toISOString();
+  const recentCutoff = new Date(now.getTime() - CONFIRM_RESEND_MS).toISOString();
+  const ipHash = input.ip ? await hashIp(input.ip, stamp.slice(0, 10)) : null;
+  const recent = await db
+    .prepare(
+      `SELECT
+         (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?2) AS emailRecent,
+         (SELECT COUNT(*) FROM confirmation_sends WHERE email = ?1 AND sent_at > ?3) AS emailDay,
+         (SELECT COUNT(*) FROM confirmation_sends WHERE ip_hash = ?4 AND sent_at > ?3) AS ipDay`,
+    )
+    .bind(email, recentCutoff, dayAgo, ipHash)
+    .first<RecentConfirmations>();
+  if (!recent || !confirmationAllowed(recent)) return { ok: false, error: 'rate' };
+
+  const token = existing?.token ?? newToken();
   await db
     .prepare(
       `INSERT INTO subscriptions (token, email, company_number, company_name, offers, created_at, confirm_sent_at)
@@ -143,6 +167,7 @@ export async function signUp(input: SignUpInput, now = new Date()): Promise<Sign
     await db.prepare('UPDATE subscriptions SET confirm_sent_at = NULL WHERE token = ?').bind(token).run();
     return { ok: false, error: 'unavailable' };
   }
+  await db.prepare('INSERT INTO confirmation_sends (email, ip_hash, sent_at) VALUES (?, ?, ?)').bind(email, ipHash, stamp).run();
   return { ok: true, companyName };
 }
 
@@ -209,6 +234,8 @@ export async function runReminderJob(now = new Date()): Promise<void> {
   const today = now.toISOString().slice(0, 10);
   const staleBefore = new Date(now.getTime() - UNCONFIRMED_DAYS * 86_400_000).toISOString();
   await db.prepare('DELETE FROM subscriptions WHERE confirmed_at IS NULL AND created_at < ?').bind(staleBefore).run();
+  const dayAgo = new Date(now.getTime() - 86_400_000).toISOString();
+  await db.prepare('DELETE FROM confirmation_sends WHERE sent_at < ?').bind(dayAgo).run();
 
   const { results } = await db
     .prepare(

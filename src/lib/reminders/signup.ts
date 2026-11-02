@@ -16,9 +16,35 @@ export function acceptsReminders(status: string): boolean {
   return /^active\b/i.test(status.trim());
 }
 
-// A confirmation email is sent at most once every 10 minutes per sign-up, so
-// the form can't be used to flood someone's inbox.
+// Limits on confirmation emails, so the form can't be used to flood someone's
+// inbox or use up the daily sending allowance. They count every confirmation
+// to an address, whichever company it was for.
 export const CONFIRM_RESEND_MS = 10 * 60 * 1000;
+export const MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY = 3;
+export const MAX_CONFIRMATIONS_PER_IP_PER_DAY = 10;
+
+export interface RecentConfirmations {
+  // To this address in the last 10 minutes, and in the last 24 hours.
+  emailRecent: number;
+  emailDay: number;
+  // From this IP address in the last 24 hours.
+  ipDay: number;
+}
+
+export function confirmationAllowed(recent: RecentConfirmations): boolean {
+  return (
+    recent.emailRecent === 0 &&
+    recent.emailDay < MAX_CONFIRMATIONS_PER_EMAIL_PER_DAY &&
+    recent.ipDay < MAX_CONFIRMATIONS_PER_IP_PER_DAY
+  );
+}
+
+// SHA-256 of the day and the IP address: enough to count sends from one
+// address today, but not to link them to another day.
+export async function hashIp(ip: string, day: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${day}|${ip}`));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+}
 
 // Cap on companies per email address.
 export const MAX_COMPANIES_PER_EMAIL = 20;

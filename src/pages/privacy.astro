@@ -30,6 +30,8 @@ import { SITE } from '../data/site';
       never confirmed are deleted after 7 days. Emails are sent through Resend, which processes your address on our
       behalf and may do so in the United States under its data processing terms. The sign-up form uses Cloudflare
       Turnstile to check it was sent by a person; Cloudflare processes technical signals from your browser for that.
+      To stop the form being used to flood someone's inbox, we also keep a record of each confirmation email (the email
+      address, the time, and a scrambled form of your IP address that can't be linked across days) for about a day.
     </li>
     <li>
       <strong>Technical logs.</strong> Our hosting provider, Cloudflare, processes the requests your browser makes
