@@ -1,3 +1,9 @@
 {
-  "snapshot": null
+  "snapshot": "2026-11-01",
+  "file": "BasicCompanyDataAsOneFile-2026-11-01.zip",
+  "companies": 5711779,
+  "skipped": 1,
+  "name_shards": 5116,
+  "company_shards": 6531,
+  "finished_at": "2026-11-05T14:45:01.766Z"
 }
